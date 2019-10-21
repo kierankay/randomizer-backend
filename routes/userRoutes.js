@@ -4,7 +4,7 @@ const passport = require('passport')
 const { User } = require('../functions.js')
 
 
-router.post('/create', User.verifyJwt, async function (req, res, next) {
+router.post('/create', async function (req, res, next) {
   try {
     let { username, email, password } = req.body;
     let userDetails = await User.createUser(username, email, password);
