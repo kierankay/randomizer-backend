@@ -1,7 +1,6 @@
 # Randomizer
 
-Randomizer is a JavaScript / Node / Postgres app for randomizing pairs of students in a classroom. It was built to ensure an even distribution of pairs (eliminating repeats) given certain constraints (like the max number of pairs ago that a repeat could have happened).
-
+Randomizer is a JavaScript / Node / Postgres app for randomizing pairs of students in a classroom. It ensures an even distribution of partners to maximize students' opportunities to learn from partners. Setting the max number of pairs ago that a pair could have happened ago enables selecting the degree of randomness optimizing between maximizing past-pair distances (resulting in predictable round-robin style pairing) and total randomness (resulting in some potential repeat pairs).
 ## Features
 
 1. Authentication via bcrypt
