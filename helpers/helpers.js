@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const { NUM_ROUNDS, SECRET_KEY } = require('./config')
 const jwt = require('jsonwebtoken');
 
+// Function to generate randomized pairs
 async function randomizePairs(studentsList, minRepeatDistance) {
   // Prevent infinite loops by disallowing impossible min repeat distances
   minRepeatDistance = minRepeatDistance > studentsList.length - 2 ? studentsList.length - 2 : minRepeatDistance
@@ -75,7 +76,7 @@ function randomizeListIndex(list) {
 
 
 module.exports = {
-  randomizePairs
+  randomizePairs,
   addStudentToPair,
   randomizeListIndex
 }
