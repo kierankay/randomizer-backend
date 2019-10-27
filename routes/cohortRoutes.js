@@ -1,16 +1,12 @@
 const express = require('express');
 const router = express.Router();
-
-const {
-  addCohort,
-  getCohorts,
-  User,
-  getStudentsFromCohort
-} = require('../functions.js')
+const User = require('../models/User');
+const Cohort = require('../models/Cohort');
+const Student = require('../models/Student');
 
 router.get('/', async function (req, res, next) {
   try {
-    let result = await getCohorts()
+    let result = await Cohort.getCohorts()
     return res.json(result);
   } catch (err) {
     return next(err);
@@ -20,7 +16,7 @@ router.get('/', async function (req, res, next) {
 router.post('/', User.verifyJwt, async function (req, res, next) {
   try {
     let { cohort } = req.body;
-    let added = await addCohort(cohort);
+    let added = await Cohort.addCohort(cohort);
     return res.json(added);
   } catch (err) {
     return next(err);
@@ -29,7 +25,7 @@ router.post('/', User.verifyJwt, async function (req, res, next) {
 
 router.get('/:id/students', User.verifyJwt, async function(req, res, next) {
   try {
-    let students = await getStudentsFromCohort(req.params.id)
+    let students = await Student.getStudentsFromCohort(req.params.id)
     return res.json(students);
   } catch (err) {
     return next(err);
