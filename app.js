@@ -1,8 +1,8 @@
 const express = require('express');
-const ExpressError = require('./expressError')
-const passport = require('passport')
-const LocalStrategy = require('passport-local').Strategy
-const { User } = require('./functions')
+const ExpressError = require('./expressError');
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
+const User = require('./models/User');
 
 passport.use(new LocalStrategy(
   async function (username, password, done) {
@@ -38,7 +38,6 @@ app.use('/users', userRoutes)
 app.use('/groups', groupRoutes)
 app.use('/cohorts', cohortRoutes)
 app.use('/students', studentRoutes)
-
 
 /* Error handling*/
 
