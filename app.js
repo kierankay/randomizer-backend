@@ -6,15 +6,15 @@ const User = require('./models/User');
 const whitelist = ['http://localhost:3001', 'http://kierankay.com:3001'];
 const cors = require('cors');
 
-const corsOptions = {
-  origin: function (origin, callback) {
-    if (whitelist.indexOf(origin) !== -1) {
-      callback(null, true)
-    } else {
-      callback(new Error('Not allowed by CORS'))
-    }
-  }
-}
+// const corsOptions = {
+//   origin: function (origin, callback) {
+//     if (whitelist.indexOf(origin) !== -1) {
+//       callback(null, true)
+//     } else {
+//       callback(new Error('Not allowed by CORS'))
+//     }
+//   }
+// }
 
 passport.use(new LocalStrategy(
   async function (username, password, done) {
@@ -33,7 +33,7 @@ passport.deserializeUser(function(user, done) {
 });
 
 const app = express();
-app.use(cors(corsOptions));
+app.use(cors());
 app.use(express.json());
 app.use(express.static('./'));
 
