@@ -1,7 +1,4 @@
-const db = require('./db')
-const bcrypt = require('bcrypt');
-const { NUM_ROUNDS, SECRET_KEY } = require('./config')
-const jwt = require('jsonwebtoken');
+const db = require('../db');
 
 // Function to generate randomized pairs
 async function randomizePairs(studentsList, minRepeatDistance) {
@@ -74,9 +71,58 @@ function randomizeListIndex(list) {
   return num
 }
 
+async function lastSolo(student) {
+  let currentPair = await db.query(`
+  SELECT *
+  FROM pairs
+  ORDER BY group_id DESC
+  LIMIT 1`);
+  let currentGroup = 0;
+  if (currentPair.rows.length > 0) {
+    currentGroup = currentPair.rows[0].group_id;
+  }
+
+  let result = await db.query(`
+  SELECT *
+  FROM pairs
+  WHERE student1_id = $1 AND student2_id IS NULL
+  ORDER BY group_id DESC
+  LIMIT 1`, [student.id])
+  if (result.rows.length > 0) {
+    let lastSoloDistance = currentGroup - result.rows[0].group_id;
+    return lastSoloDistance;
+  }
+  return 10000
+}
+
+async function lastPaired(student1, student2) {
+  let currentPair = await db.query(`
+  SELECT *
+  FROM pairs
+  ORDER BY group_id DESC
+  LIMIT 1`);
+
+  // if no pairs yet populated, don't expect there to be a pair, otherwise compare to most recent pair
+  let currentGroup = 0;
+  if (currentPair.rows.length > 0) {
+    currentGroup = currentPair.rows[0].group_id;
+  }
+
+  let result = await db.query(`
+  SELECT *
+  FROM pairs
+  WHERE (student1_id = $1 AND student2_id = $2) 
+  OR (student1_id = $2 AND student2_id = $1)
+  ORDER BY group_id DESC 
+  LIMIT 1
+  `, [student1.id, student2.id])
+  if (result.rows.length > 0) {
+    let lastPaired = currentGroup - result.rows[0].group_id;
+    return lastPaired;
+  }
+  return 10000;
+}
 
 module.exports = {
-  randomizePairs,
-  addStudentToPair,
-  randomizeListIndex
+  randomizePairs
 }
