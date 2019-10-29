@@ -19,7 +19,7 @@ class User {
     VALUES ($1, $2, $3)
     RETURNING username, email, password
     `, [username, email, hashedPassword])
-    return result.rows
+    return result.rows[0]
   }
 
   static async loginUser(username, password) {
