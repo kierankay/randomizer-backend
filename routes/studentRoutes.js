@@ -1,7 +1,8 @@
 const express = require('express');
-const router = express.Router();
 const User = require('../models/User');
 const Student = require('../models/Student');
+
+const router = express.Router();
 
 router.post('/', User.verifyJwt, async function (req, res, next) {
   try {

@@ -1,8 +1,9 @@
 const express = require('express');
-const router = express.Router();
 const User = require('../models/User');
 const Cohort = require('../models/Cohort');
 const Student = require('../models/Student');
+
+const router = express.Router();
 
 router.get('/', async function (req, res, next) {
   try {
@@ -11,7 +12,7 @@ router.get('/', async function (req, res, next) {
   } catch (err) {
     return next(err);
   }
-})
+});
 
 router.post('/', User.verifyJwt, async function (req, res, next) {
   try {
@@ -21,7 +22,7 @@ router.post('/', User.verifyJwt, async function (req, res, next) {
   } catch (err) {
     return next(err);
   }
-})
+});
 
 router.get('/:id/students', User.verifyJwt, async function(req, res, next) {
   try {

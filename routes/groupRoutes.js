@@ -1,8 +1,9 @@
 const express = require('express');
-const router = express.Router();
 const User = require('../models/User');
 const Pair = require('../models/Pair');
 const Student = require('../models/Student');
+
+const router = express.Router();
 
 const { randomizePairs } = require('../helpers/helpers');
 
@@ -15,7 +16,7 @@ router.get('/', async function (req, res, next) {
   } catch (err) {
     return next(err);
   }
-})
+});
 
 router.get('/random-group', async function (req, res, next) {
   try {
@@ -26,7 +27,7 @@ router.get('/random-group', async function (req, res, next) {
   } catch (err) {
     return next(err);
   }
-})
+});
 
 router.post('/', User.verifyJwt, async function (req, res, next) {
   try {
@@ -36,6 +37,6 @@ router.post('/', User.verifyJwt, async function (req, res, next) {
   } catch (err) {
     return next(err);
   }
-})
+});
 
 module.exports = router;

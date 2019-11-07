@@ -1,7 +1,8 @@
 const express = require('express');
-const router = express.Router();
-const passport = require('passport')
+const passport = require('passport');
 const User = require('../models/User');
+
+const router = express.Router();
 
 router.post('/', async function (req, res, next) {
   try {
@@ -11,16 +12,16 @@ router.post('/', async function (req, res, next) {
   } catch (err) {
     return next(err);
   }
-})
+});
 
 router.get('/check', User.verifyJwt, async function (req, res, next) {
   try {
-    let userData = await User.getUser(req.user)
+    let userData = await User.getUser(req.user);
     return res.json({ user: userData });
   } catch (err) {
     return next(err);
   }
-})
+});
 
 router.post('/login', passport.authenticate('local', { failureRedirect: '/last-groups' }), async function (req, res, next) {
   try {
@@ -31,6 +32,6 @@ router.post('/login', passport.authenticate('local', { failureRedirect: '/last-g
   } catch (err) {
     return next(err);
   }
-})
+});
 
 module.exports = router;
