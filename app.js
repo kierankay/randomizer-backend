@@ -49,10 +49,10 @@ const groupRoutes = require('./routes/groupRoutes')
 const cohortRoutes = require('./routes/cohortRoutes');
 const studentRoutes = require('./routes/studentRoutes');
 
-app.use('/users', userRoutes)
-app.use('/groups', groupRoutes)
-app.use('/cohorts', cohortRoutes)
-app.use('/students', studentRoutes)
+app.use('/api/users', userRoutes)
+app.use('/api/groups', groupRoutes)
+app.use('/api/cohorts', cohortRoutes)
+app.use('/api/students', studentRoutes)
 
 /* Error handling*/
 
