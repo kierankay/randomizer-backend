@@ -11,16 +11,16 @@ This repo is for the backend server. For the frontend, see [randomizer-frontend]
 ## Frameworks / Libraries
 
 1. Javascript
-  1. Node.js
-    1. Express
-    1. pg
-    1. Passport
-      1. Passport-jwt
-      1. Passport-local
-    1. Axios
-    1. Bcrypt
-    1. Body-parser
-    1. Dotenv
+1. Node.js
+1. Express
+1. pg
+1. Passport
+1. Passport-jwt
+1. Passport-local
+1. Axios
+1. Bcrypt
+1. Body-parser
+1. Dotenv
 1. Postgres
 
 ## Features
