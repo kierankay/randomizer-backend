@@ -5,7 +5,7 @@ const LocalStrategy = require('passport-local').Strategy;
 const User = require('./models/User');
 const dotenv = require('dotenv');
 dotenv.config();
-const whitelist = ['http://localhost:3001', 'http://kierankay.com:3001'];
+// const whitelist = ['http://localhost:3001', 'http://kierankay.com:3001'];
 const cors = require('cors');
 
 // const corsOptions = {
