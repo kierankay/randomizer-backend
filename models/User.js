@@ -45,7 +45,7 @@ class User {
     }
   }
 
-  static async getUser(username) {
+  static async getUserFromUsername(username) {
     let result = await db.query(`
     SELECT *
     FROM users
@@ -55,6 +55,19 @@ class User {
       return result.rows[0]
     } else {
       return ('no user by that name')
+    }
+  }
+
+  static async getUserFromEmail(email) {
+    let result = await db.query(`
+    SELECT *
+    FROM users
+    WHERE email = $1
+    `, [email])
+    if (result.rows.length === 1) {
+      return result.rows[0]
+    } else {
+      return ('no user with that email')
     }
   }
 }
