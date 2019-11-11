@@ -33,14 +33,32 @@ router.post('/login', passport.authenticate('local', { failureRedirect: '/last-g
   }
 });
 
-// finish this based on (https://github.com/kierankay/randomizer-backend/issues/4)
-// check if userData.length > 0 && create new password reset token.
-
-router.post('/request-password', async function (req, res, next) {
+router.post('/request-password-reset', async function (req, res, next) {
   try {
     let { email } = req.body
     let userData = await User.getUserFromEmail(email);
-    return res.json({ user: userData });
+    if (userData) {
+      const token = await User.createPasswordResetToken(userData);
+      User.sendPasswordResetEmail(token, email);
+    }
+    return res.json({ message: "Success. If an email matching your account is found, you'll receive an email with instructions on how to reset your password" });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+router.post('/confirm-password-reset', async function (req, res, next) {
+  try {
+    let { token } = req.body;
+    let { password } = req.body;
+    let tokenValid = await User.verifyPasswordResetToken(token);
+    if (!tokenValid) {
+      return res.json({message: "Token is expired"});
+    } else {
+      let updatedData = await User.changePasswordWithToken(token, password);
+      console.log(updatedData)
+      return res.json({message: "Password updated"});
+    }
   } catch (err) {
     return next(err);
   }
