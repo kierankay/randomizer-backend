@@ -2,7 +2,8 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 let {
-  SERVER,
+  BACKENDSERVER,
+  FRONTENDSERVER,
   PGUSER,
   PGPASSWORD,
   SECRET,
@@ -29,4 +30,4 @@ if (process.env.NODE_ENV === "test") {
   DB_URI = process.env.DATABASE_URL || `randomizer`;
 }
 
-module.exports =  {DB_URI, NUM_ROUNDS, SECRET_KEY, TRANSPORTER, PGUSER, PGPASSWORD, SERVER}
+module.exports = { DB_URI, NUM_ROUNDS, SECRET_KEY, TRANSPORTER, PGUSER, PGPASSWORD, BACKENDSERVER, FRONTENDSERVER }
