@@ -56,7 +56,6 @@ router.post('/confirm-password-reset', async function (req, res, next) {
       return res.json({message: "Token is expired"});
     } else {
       let updatedData = await User.changePasswordWithToken(token, password);
-      console.log(updatedData)
       return res.json({message: "Password updated"});
     }
   } catch (err) {
