@@ -4,7 +4,7 @@ const { SERVER, NUM_ROUNDS, SECRET_KEY, TRANSPORTER } = require('../config')
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const transporter = nodemailer.createTransport(TRANSPORTER);
-const moment = require('moment');
+// const moment = require('moment');
 
 class User {
   constructor(firstName, lastName, email, username) {
@@ -87,7 +87,7 @@ class User {
       return token;
     } catch (err) {
       console.log(err);
-      return err;
+      return next(err)
     }
   }
 
@@ -105,7 +105,7 @@ class User {
       return tokenValid;
     } catch (err) {
       console.log(err);
-      return err;
+      return next(err)
     }
   }
 
@@ -117,8 +117,8 @@ class User {
       WHERE hashed_token=$1
       RETURNING id, user_id, hashed_token, valid
     `, [token]);
-      let user_id = expiredToken.rows[0].user_id
-      let hashedPassword = await bcrypt.hash(password, NUM_ROUNDS)
+      let user_id = expiredToken.rows[0].user_id;
+      let hashedPassword = await bcrypt.hash(password, NUM_ROUNDS);
       let userData = await db.query(`
     UPDATE users 
       SET password = $1
@@ -128,20 +128,24 @@ class User {
       return { expiredToken, userData };
     } catch (err) {
       console.log(err);
-      return err;
+      return next(err)
     }
   }
 
   static async sendPasswordResetEmail(token, email) {
-    let info = await transporter.sendMail({
-      from: '"Kieran Kay" <kierankay@gmail.com>',
-      to: email,
-      subject: 'Password Reset Request',
-      html: `Click <a href="${SERVER}/api/users/confirm-password-reset?token=${token}">here</a> to reset your password. \
+    try {
+      let info = await transporter.sendMail({
+        from: '"Kieran Kay" <kierankay@gmail.com>',
+        to: email,
+        subject: 'Password Reset Request',
+        html: `Click <a href="${SERVER}/api/users/confirm-password-reset?token=${token}">here</a> to reset your password. \
       If you do not recognize this request, please ignore it.`
-    });
-    console.log('Message sent:', info.messageId);
-    return info;
+      });
+      console.log('Message sent:', info.messageId);
+      return info;
+    } catch (err) {
+      return next(err)
+    }
   }
 }
 
