@@ -1,6 +1,6 @@
 const db = require('../db');
 const bcrypt = require('bcrypt');
-const { SERVER, NUM_ROUNDS, SECRET_KEY, TRANSPORTER } = require('../config')
+const { FRONTENDSERVER, NUM_ROUNDS, SECRET_KEY, TRANSPORTER } = require('../config')
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const transporter = nodemailer.createTransport(TRANSPORTER);
@@ -138,7 +138,7 @@ class User {
         from: '"Kieran Kay" <kierankay@gmail.com>',
         to: email,
         subject: 'Password Reset Request',
-        html: `Click <a href="${SERVER}/api/users/confirm-password-reset?token=${token}">here</a> to reset your password. \
+        html: `Click <a href="${FRONTENDSERVER}/reset-password/${token}">here</a> to reset your password. \
       If you do not recognize this request, please ignore it.`
       });
       console.log('Message sent:', info.messageId);
