@@ -87,7 +87,6 @@ class User {
       return token;
     } catch (err) {
       console.log(err);
-      return next(err)
     }
   }
 
@@ -105,7 +104,6 @@ class User {
       return tokenValid;
     } catch (err) {
       console.log(err);
-      return next(err)
     }
   }
 
@@ -128,7 +126,6 @@ class User {
       return { expiredToken, userData };
     } catch (err) {
       console.log(err);
-      return next(err)
     }
   }
 
@@ -144,7 +141,7 @@ class User {
       console.log('Message sent:', info.messageId);
       return info;
     } catch (err) {
-      return next(err)
+      console.log(err);
     }
   }
 }
