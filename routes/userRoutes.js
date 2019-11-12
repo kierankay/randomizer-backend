@@ -47,15 +47,24 @@ router.post('/request-password-reset', async function (req, res, next) {
   }
 });
 
+router.post('/check-password-token', async function (req, res, next) {
+  try {
+    let { passwordToken } = req.body
+    let tokenValid = await User.verifyPasswordResetToken(passwordToken);
+    return res.json({tokenValid})
+  } catch (err) {
+    return next(err);
+  }
+});
+
 router.post('/confirm-password-reset', async function (req, res, next) {
   try {
-    let { token } = req.body;
-    let { password } = req.body;
-    let tokenValid = await User.verifyPasswordResetToken(token);
+    let { passwordToken, password } = req.body;
+    let tokenValid = await User.verifyPasswordResetToken(passwordToken);
     if (!tokenValid) {
       return res.json({message: "Token is expired"});
     } else {
-      let updatedData = await User.changePasswordWithToken(token, password);
+      let updatedData = await User.changePasswordWithToken(passwordToken, password);
       return res.json({message: "Password updated"});
     }
   } catch (err) {
