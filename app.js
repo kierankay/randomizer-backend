@@ -18,21 +18,23 @@ const corsOptions = {
   }
 }
 
-passport.use(new LocalStrategy(
-  async function (username, password, done) {
-    let user = await User.loginUser(username, password)
-    let userToSerialize = user ? { username: username } : false;
-    return done(null, userToSerialize);
-  })
-)
+// refactor login to use passport in the future
 
-passport.serializeUser(function(user, done) {
-  done(null, user);
-});
+// passport.use(new LocalStrategy(
+//   async function (username, password, done) {
+//     let user = await User.loginUser(username, password)
+//     let userToSerialize = user ? { username: username } : false;
+//     return done(null, user);
+//   })
+// )
 
-passport.deserializeUser(function(user, done) {
-  done(null, user);
-});
+// passport.serializeUser(function(user, done) {
+//   done(null, user);
+// });
+
+// passport.deserializeUser(function(user, done) {
+//   done(null, user);
+// });
 
 const app = express();
 app.use(cors());

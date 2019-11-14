@@ -23,7 +23,10 @@ router.get('/check', User.verifyJwt, async function (req, res, next) {
   }
 });
 
-router.post('/login', passport.authenticate('local', { failureRedirect: '/login' }), async function (req, res, next) {
+
+/* use passport.authenticate('local') middleware in the future*/
+
+router.post('/login', async function (req, res, next) {
   try {
     let { username, password } = req.body;
     let result = await User.loginUser(username, password);
