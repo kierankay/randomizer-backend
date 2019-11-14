@@ -47,7 +47,7 @@ router.post('/login', async function (req, res, next) {
 router.post('/request-password-reset', async function (req, res, next) {
   try {
     let { email } = req.body
-    let userData = await User.getUserFromEmail(email);
+    let userData = await User.checkUserByEmail(email);
     if (userData) {
       const token = await User.createPasswordResetToken(userData);
       User.sendPasswordResetEmail(token, email);

@@ -62,31 +62,18 @@ class User {
     }
   }
 
-  // static async getUserFromEmail(email) {
-  //   let result = await db.query(`
-  //   SELECT *
-  //   FROM users
-  //   WHERE email = $1
-  //   `, [email])
-  //   if (result.rows.length === 1) {
-  //     return result.rows[0]
-  //   } else {
-  //     return ('no user by that name')
-  //   }
-  // }
-
-  // static async getUserFromEmail(email) {
-  //   let result = await db.query(`
-  //   SELECT *
-  //   FROM users
-  //   WHERE email = $1
-  //   `, [email])
-  //   if (result.rows.length === 1) {
-  //     return result.rows[0]
-  //   } else {
-  //     return ('no user with that email')
-  //   }
-  // }
+  static async checkUserByEmail(email) {
+    let result = await db.query(`
+    SELECT *
+    FROM users
+    WHERE email = $1
+    `, [email])
+    if (result.rows.length === 1) {
+      return result.rows[0]
+    } else {
+      return ('no user by that email')
+    }
+  }
 
   static async createPasswordResetToken(user) {
     try {
