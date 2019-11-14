@@ -26,14 +26,18 @@ class User {
   }
 
   static async loginUser(username, password) {
-    let result = await db.query(`
+    try {
+      let result = await db.query(`
     SELECT password
     FROM users
     WHERE username = $1`,
-      [username]);
-    let comparison = await bcrypt.compare(password, result.rows[0].password);
-    let token = comparison ? await jwt.sign(username, SECRET_KEY) : null;
-    return token;
+        [username]);
+      let comparison = await bcrypt.compare(password, result.rows[0].password);
+      let token = comparison ? await jwt.sign(username, SECRET_KEY) : false;
+      return token;
+    } catch (err) {
+      return { message: "invalid username or password" };
+    }
   }
 
   static async verifyJwt(req, res, next) {
@@ -45,7 +49,7 @@ class User {
         return next()
       }
     } catch (err) {
-      return next(err)
+      return next(err);
     }
   }
 

@@ -26,8 +26,16 @@ router.get('/check', User.verifyJwt, async function (req, res, next) {
 router.post('/login', passport.authenticate('local', { failureRedirect: '/last-groups' }), async function (req, res, next) {
   try {
     let { username, password } = req.body;
-    let token = await User.loginUser(username, password);
-    return res.json({ token });
+    let result = await User.loginUser(username, password);
+
+    // If there's an error message, return the message with its default "message" key
+    if (result.message) {
+      return res.json(result);
+      
+      // Otherwise return the token in a key of "token"
+    } else {
+      return res.json({ token: result });
+    }
   } catch (err) {
     return next(err);
   }
