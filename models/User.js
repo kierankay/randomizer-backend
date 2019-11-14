@@ -15,14 +15,19 @@ class User {
   }
 
   static async createUser(username, email, password) {
-    let hashedPassword = await bcrypt.hash(password, NUM_ROUNDS)
-    let result = await db.query(`
+    try {
+      let hashedPassword = await bcrypt.hash(password, NUM_ROUNDS)
+      let result = await db.query(`
     INSERT INTO users
     (username, email, password)
     VALUES ($1, $2, $3)
     RETURNING username, email, password
     `, [username, email, hashedPassword])
-    return result.rows[0]
+    console.log(result);
+      return result.rows[0]
+    } catch(err) {
+      return err;
+    }
   }
 
   static async loginUser(username, password) {
