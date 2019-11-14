@@ -14,15 +14,19 @@ class User {
     this.lastName = lastName
   }
 
-  static async createUser(username, email, password) {
+  static async createUser(firstName, lastName, organization, email, password) {
     try {
       let hashedPassword = await bcrypt.hash(password, NUM_ROUNDS)
       let result = await db.query(`
-    INSERT INTO users
-    (username, email, password)
-    VALUES ($1, $2, $3)
-    RETURNING username, email, password
-    `, [username, email, hashedPassword])
+      WITH org_id AS (
+        INSERT INTO organizations (name) 
+        VALUES ($3) 
+        RETURNING id
+        )
+    INSERT INTO users (first_name, last_name, organization_id, email, password)
+    VALUES ($1, $2, (SELECT id FROM org_id), $4, $5)
+    RETURNING first_name, last_name, organization_id, email, password;
+    `, [firstName, lastName, organization, email, hashedPassword])
     console.log(result);
       return result.rows[0]
     } catch(err) {
@@ -30,18 +34,18 @@ class User {
     }
   }
 
-  static async loginUser(username, password) {
+  static async loginUser(email, password) {
     try {
       let result = await db.query(`
     SELECT password
     FROM users
-    WHERE username = $1`,
-        [username]);
+    WHERE email = $1`,
+        [email]);
       let comparison = await bcrypt.compare(password, result.rows[0].password);
-      let token = comparison ? await jwt.sign(username, SECRET_KEY) : false;
+      let token = comparison ? await jwt.sign(email, SECRET_KEY) : false;
       return token;
     } catch (err) {
-      return { message: "invalid username or password" };
+      return { message: "invalid email or password" };
     }
   }
 
@@ -58,31 +62,31 @@ class User {
     }
   }
 
-  static async getUserFromUsername(username) {
-    let result = await db.query(`
-    SELECT *
-    FROM users
-    WHERE username = $1
-    `, [username])
-    if (result.rows.length === 1) {
-      return result.rows[0]
-    } else {
-      return ('no user by that name')
-    }
-  }
+  // static async getUserFromEmail(email) {
+  //   let result = await db.query(`
+  //   SELECT *
+  //   FROM users
+  //   WHERE email = $1
+  //   `, [email])
+  //   if (result.rows.length === 1) {
+  //     return result.rows[0]
+  //   } else {
+  //     return ('no user by that name')
+  //   }
+  // }
 
-  static async getUserFromEmail(email) {
-    let result = await db.query(`
-    SELECT *
-    FROM users
-    WHERE email = $1
-    `, [email])
-    if (result.rows.length === 1) {
-      return result.rows[0]
-    } else {
-      return ('no user with that email')
-    }
-  }
+  // static async getUserFromEmail(email) {
+  //   let result = await db.query(`
+  //   SELECT *
+  //   FROM users
+  //   WHERE email = $1
+  //   `, [email])
+  //   if (result.rows.length === 1) {
+  //     return result.rows[0]
+  //   } else {
+  //     return ('no user with that email')
+  //   }
+  // }
 
   static async createPasswordResetToken(user) {
     try {
@@ -130,7 +134,7 @@ class User {
     UPDATE users 
       SET password = $1
       WHERE id=$2
-      RETURNING id, username, email, password
+      RETURNING id, first_name, last_name, organization_id, email, password
     `, [hashedPassword, user_id]);
       return { expiredToken, userData };
     } catch (err) {
