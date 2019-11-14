@@ -23,7 +23,7 @@ router.get('/check', User.verifyJwt, async function (req, res, next) {
   }
 });
 
-router.post('/login', passport.authenticate('local', { failureRedirect: '/last-groups' }), async function (req, res, next) {
+router.post('/login', passport.authenticate('local', { failureRedirect: '/login' }), async function (req, res, next) {
   try {
     let { username, password } = req.body;
     let result = await User.loginUser(username, password);
@@ -31,7 +31,7 @@ router.post('/login', passport.authenticate('local', { failureRedirect: '/last-g
     // If there's an error message, return the message with its default "message" key
     if (result.message) {
       return res.json(result);
-      
+
       // Otherwise return the token in a key of "token"
     } else {
       return res.json({ token: result });
