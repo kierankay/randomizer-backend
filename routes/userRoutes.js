@@ -6,8 +6,9 @@ const router = express.Router();
 
 router.post('/', async function (req, res, next) {
   try {
-    let { username, email, password } = req.body;
-    let result = await User.createUser(username, email, password);
+    let { firstName, lastName, organization, email, password } = req.body;
+    let result = await User.createUser( firstName, lastName, organization, email, password );
+    console.log(result);
     return res.json(result);
   } catch (err) {
     return next(err);
@@ -16,8 +17,7 @@ router.post('/', async function (req, res, next) {
 
 router.get('/check', User.verifyJwt, async function (req, res, next) {
   try {
-    let userData = await User.getUserFromUsername(req.user);
-    return res.json({ user: userData });
+    return res.json({ user: req.user });
   } catch (err) {
     return next(err);
   }
@@ -28,8 +28,8 @@ router.get('/check', User.verifyJwt, async function (req, res, next) {
 
 router.post('/login', async function (req, res, next) {
   try {
-    let { username, password } = req.body;
-    let result = await User.loginUser(username, password);
+    let { email, password } = req.body;
+    let result = await User.loginUser(email, password);
 
     // If there's an error message, return the message with its default "message" key
     if (result.message) {
