@@ -5,6 +5,8 @@ DROP TABLE IF EXISTS students CASCADE;
 DROP TABLE IF EXISTS groups CASCADE;
 DROP TABLE IF EXISTS pairs CASCADE;
 DROP TABLE IF EXISTS password_tokens CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS organizations CASCADE;
 
 CREATE TABLE cohorts (
   cohort_name TEXT PRIMARY KEY
@@ -31,12 +33,19 @@ CREATE TABLE pairs (
   PRIMARY KEY (student1_id, group_id)
 );
 
+CREATE TABLE organizations (
+  id SERIAL PRIMARY KEY,
+  name TEXT NOT NULL
+);
+
 CREATE TABLE users (
   id SERIAL PRIMARY KEY,
-  username TEXT UNIQUE NOT NULL,
+  first_name TEXT NOT NULL,
+  last_name TEXT NOT NULL,
+  organization_id INTEGER NOT NULL REFERENCES organizations,
   email TEXT UNIQUE NOT NULL,
   password TEXT NOT NULL
-)
+);
 
 CREATE TABLE password_tokens (
   id SERIAL PRIMARY KEY,
@@ -44,4 +53,4 @@ CREATE TABLE password_tokens (
   hashed_token TEXT UNIQUE NOT NULL,
   valid BOOLEAN NOT NULL DEFAULT TRUE,
   date DATE DEFAULT NOW()
-)
+);
