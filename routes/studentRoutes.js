@@ -3,8 +3,9 @@ const User = require('../models/User');
 const Student = require('../models/Student');
 
 const router = express.Router();
+router.use(User.verifyJwt)
 
-router.post('/', User.verifyJwt, async function (req, res, next) {
+router.post('/', async function (req, res, next) {
   try {
     let student = await Student.addStudent(req.body);
     return res.json(student);
