@@ -4,13 +4,13 @@ const Pair = require('../models/Pair');
 const Student = require('../models/Student');
 
 const router = express.Router();
+router.use(User.verifyJwt)
 
 const { randomizePairs } = require('../helpers/helpers');
 
 router.get('/', async function (req, res, next) {
   try {
-    let limit = req.query.limit
-    let cohort = req.query.cohort
+    let { limit, cohort } = req.query
     let result = await Pair.getLastPairs(limit, cohort)
     return res.json(result);
   } catch (err) {
@@ -29,7 +29,7 @@ router.get('/random-group', async function (req, res, next) {
   }
 });
 
-router.post('/', User.verifyJwt, async function (req, res, next) {
+router.post('/', async function (req, res, next) {
   try {
     let { group, project, cohort } = req.body;
     let acceptedPairs = await Pair.acceptPairs(group, project, cohort)
