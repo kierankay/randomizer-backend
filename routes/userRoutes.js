@@ -24,7 +24,7 @@ router.get('/check', User.verifyJwt, async function (req, res, next) {
 });
 
 
-/* use passport.authenticate('local') middleware in the future*/
+// use passport.authenticate('local') middleware in the future
 
 router.post('/login', async function (req, res, next) {
   try {
