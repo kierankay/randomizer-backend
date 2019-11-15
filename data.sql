@@ -8,22 +8,29 @@ DROP TABLE IF EXISTS password_tokens CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS organizations CASCADE;
 
+CREATE TABLE organizations (
+  id SERIAL PRIMARY KEY,
+  name TEXT NOT NULL
+);
+
 CREATE TABLE cohorts (
-  cohort_name TEXT PRIMARY KEY
+  id SERIAL PRIMARY KEY,
+  cohort_name TEXT,
+  organization_id INTEGER NOT NULL REFERENCES organizations
 );
 
 CREATE TABLE students (
   id SERIAL PRIMARY KEY,
   first_name TEXT,
   last_name TEXT,
-  cohort TEXT NOT NULL REFERENCES cohorts
+  cohort_id INTEGER NOT NULL REFERENCES cohorts
 );
 
 CREATE TABLE groups (
   id SERIAL PRIMARY KEY,
   project TEXT,
   date DATE DEFAULT NOW(),
-  cohort TEXT NOT NULL REFERENCES cohorts
+  cohort_id INTEGER NOT NULL REFERENCES cohorts
 );
 
 CREATE TABLE pairs (
@@ -31,11 +38,6 @@ CREATE TABLE pairs (
   student2_id INTEGER REFERENCES students,
   group_id INTEGER NOT NULL REFERENCES groups,
   PRIMARY KEY (student1_id, group_id)
-);
-
-CREATE TABLE organizations (
-  id SERIAL PRIMARY KEY,
-  name TEXT NOT NULL
 );
 
 CREATE TABLE users (
