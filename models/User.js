@@ -27,9 +27,8 @@ class User {
     VALUES ($1, $2, (SELECT id FROM org_id), $4, $5)
     RETURNING first_name, last_name, organization_id, email, password;
     `, [firstName, lastName, organization, email, hashedPassword])
-    console.log(result);
       return result.rows[0]
-    } catch(err) {
+    } catch (err) {
       return err;
     }
   }
@@ -37,12 +36,14 @@ class User {
   static async loginUser(email, password) {
     try {
       let result = await db.query(`
-    SELECT password
+    SELECT password, organization_id
     FROM users
     WHERE email = $1`,
         [email]);
-      let comparison = await bcrypt.compare(password, result.rows[0].password);
-      let token = comparison ? await jwt.sign(email, SECRET_KEY) : false;
+      let storedPassword = result.rows[0].password;
+      let orgId = result.rows[0].organization_id;
+      let comparison = await bcrypt.compare(password, storedPassword);
+      let token = comparison ? await jwt.sign({ email, organization_id: orgId }, SECRET_KEY) : false;
       return token;
     } catch (err) {
       return { message: "invalid email or password" };
@@ -50,11 +51,18 @@ class User {
   }
 
   static async verifyJwt(req, res, next) {
+    // Get the JWT from the body or query string
     let token = req.body.token || req.query.token;
     try {
+      // attempt to decode the token
       let result = jwt.verify(token, SECRET_KEY);
+
+      // if the token is valid, serialize the user email and their org ID to the request
       if (result) {
-        req.user = result;
+        req.user = {
+          email: result.email,
+          organization: result.organization_id
+        };
         return next()
       }
     } catch (err) {
