@@ -19,6 +19,7 @@ This repo is for the backend server. For the frontend, see [randomizer-frontend]
 1. Passport
 1. Passport-jwt
 1. Passport-local
+1. Nodemailer
 1. Axios
 1. Bcrypt
 1. Body-parser
@@ -27,10 +28,12 @@ This repo is for the backend server. For the frontend, see [randomizer-frontend]
 
 ## Features
 
-1. Authentication via bcrypt
-1. Cohort creation
-1. Student addition to cohorts
-1. Project group creation
+1. bcrypt-based sensitive data encryption
+1. JWT based session management
+1. Auth routes
+1. RESTful user, cohort, pair, student routes
+1. Helpers to assign students to pairs
+1. SES-integration for email-based password recovery
 
 ## Installation
 
