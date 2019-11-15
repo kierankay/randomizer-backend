@@ -6,9 +6,9 @@ class Pair {
     console.log(group, project, cohort)
     let groupResult = await db.query(`
       INSERT INTO groups
-      (project, cohort)
+      (project, cohort_id)
       VALUES ($1, $2)
-      RETURNING id, project, date, cohort
+      RETURNING id, project, date, cohort_id
       `, [project, cohort]
     )
     console.log(groupResult.rows)
@@ -36,7 +36,7 @@ class Pair {
     let result = await db.query(`
       SELECT row_to_json(g) as group
       FROM (
-        SELECT id, project, date, cohort, json_agg(json_build_object('student_1', p.student_1, 'student_2', p.student_2)) as pairs
+        SELECT id, project, date, cohort_id, json_agg(json_build_object('student_1', p.student_1, 'student_2', p.student_2)) as pairs
         FROM groups
         LEFT JOIN (
           SELECT row_to_json(s1) as student_1, row_to_json(s2) as student_2, group_id 
@@ -50,7 +50,7 @@ class Pair {
         ORDER BY groups.id DESC
         LIMIT $1
       ) as g
-      WHERE cohort = $2
+      WHERE cohort_id = $2
       `, [limit, cohort])
     return result.rows;
   }
