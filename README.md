@@ -35,6 +35,10 @@ This repo is for the backend server. For the frontend, see [randomizer-frontend]
 1. Helpers to assign students to pairs
 1. SES-integration for email-based password recovery
 
+## Integrated Services
+
+1. Amazon SES (password recovery emails)
+
 ## Installation
 
 ```npm install```
