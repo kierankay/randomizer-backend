@@ -1,40 +1,10 @@
 const express = require('express');
 const ExpressError = require('./expressError');
 const passport = require('passport');
-const LocalStrategy = require('passport-local').Strategy;
-const User = require('./models/User');
-const dotenv = require('dotenv');
-dotenv.config();
-const whitelist = ['http://localhost:3001', 'http://kierankay.com:3001'];
 const cors = require('cors');
+const dotenv = require('dotenv');
 
-const corsOptions = {
-  origin: function (origin, callback) {
-    if (whitelist.indexOf(origin) !== -1) {
-      callback(null, true)
-    } else {
-      callback(new Error('Not allowed by CORS'))
-    }
-  }
-}
-
-// refactor login to use passport in the future
-
-// passport.use(new LocalStrategy(
-//   async function (username, password, done) {
-//     let user = await User.loginUser(username, password)
-//     let userToSerialize = user ? { username: username } : false;
-//     return done(null, user);
-//   })
-// )
-
-// passport.serializeUser(function(user, done) {
-//   done(null, user);
-// });
-
-// passport.deserializeUser(function(user, done) {
-//   done(null, user);
-// });
+dotenv.config();
 
 const app = express();
 app.use(cors());
@@ -46,17 +16,13 @@ app.use(require('express-session')({ secret: 'keyboard cat', resave: false, save
 app.use(passport.initialize());
 app.use(passport.session());
 
-const userRoutes = require('./routes/userRoutes')
-const groupRoutes = require('./routes/groupRoutes')
+const userRoutes = require('./routes/userRoutes');
 const cohortRoutes = require('./routes/cohortRoutes');
-const studentRoutes = require('./routes/studentRoutes');
 
-app.use('/api/users', userRoutes)
-app.use('/api/groups', groupRoutes)
-app.use('/api/cohorts', cohortRoutes)
-app.use('/api/students', studentRoutes)
+app.use('/api/users', userRoutes);
+app.use('/api/cohorts', cohortRoutes);
 
-/* Error handling*/
+// ERROR HANDLING
 
 app.use(function (req, res, next) {
   const err = new ExpressError('resource not found', 404);
@@ -76,3 +42,46 @@ app.use(function (err, req, res, next) {
 });
 
 module.exports = app;
+
+/*
+
+// Refactor to limit CORS
+
+const whitelist = ['http://localhost:3001', 'http://kierankay.com:3001'];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (whitelist.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  }
+}
+
+*/
+
+/*
+
+// Refactor to use passport.js
+
+const LocalStrategy = require('passport-local').Strategy;
+const User = require('./models/User');
+
+passport.use(new LocalStrategy(
+  async function (username, password, done) {
+    let user = await User.loginUser(username, password)
+    let userToSerialize = user ? { username: username } : false;
+    return done(null, user);
+  })
+)
+
+passport.serializeUser(function(user, done) {
+  done(null, user);
+});
+
+passport.deserializeUser(function(user, done) {
+  done(null, user);
+});
+
+*/
