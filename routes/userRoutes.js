@@ -1,8 +1,18 @@
 const express = require('express');
-const passport = require('passport');
 const User = require('../models/User');
-
 const router = express.Router();
+
+/*
+  Create a new user account
+  ex: POST /api/users/
+  body: {
+    firstName: "Kieran",
+    lastName: "Kay",
+    organization: "Rithm School",
+    email: "kierankay@rithmschool.com",
+    password: "bobiscool"
+  }
+*/
 
 router.post('/', async function (req, res, next) {
   try {
@@ -15,6 +25,11 @@ router.post('/', async function (req, res, next) {
   }
 });
 
+/*
+  Check if a user has a valid auth token
+  ex: GET /api/users/check
+*/
+
 router.get('/check', User.verifyJwt, async function (req, res, next) {
   try {
     return res.json({ user: req.user });
@@ -24,7 +39,16 @@ router.get('/check', User.verifyJwt, async function (req, res, next) {
 });
 
 
-// use passport.authenticate('local') middleware in the future
+/*
+  Log a user in
+  ex: POST /api/users/login
+  body: {
+    email: "kierankay@rithmschool.com",
+    password: "bobiscool"
+  }
+*/
+
+// refactor to use passport.authenticate('local') middleware in the future
 
 router.post('/login', async function (req, res, next) {
   try {
@@ -44,6 +68,14 @@ router.post('/login', async function (req, res, next) {
   }
 });
 
+/*
+  Email a user a URL to reset their password
+  ex: POST /api/users/request-password-reset
+  body: {
+    email: "kierankay@rithmschool.com"
+  }
+*/
+
 router.post('/request-password-reset', async function (req, res, next) {
   try {
     let { email } = req.body
@@ -58,6 +90,14 @@ router.post('/request-password-reset', async function (req, res, next) {
   }
 });
 
+/*
+  Verify that a submitted a password reset token is valid and return true or false
+  ex: POST /api/users/request-password-reset
+  body: {
+    passwordToken: "valid.token.data"
+  }
+*/
+
 router.post('/check-password-token', async function (req, res, next) {
   try {
     let { passwordToken } = req.body
@@ -67,6 +107,15 @@ router.post('/check-password-token', async function (req, res, next) {
     return next(err);
   }
 });
+
+/*
+  Reset a user's password using a valid password reset token and the new password
+  ex: POST /api/users/confirm-password-reset
+  body: {
+    passwordToken: "valid.token.data",
+    password: "BOBisEvencoolernow!!"
+  }
+*/
 
 router.post('/confirm-password-reset', async function (req, res, next) {
   try {
@@ -84,3 +133,11 @@ router.post('/confirm-password-reset', async function (req, res, next) {
 });
 
 module.exports = router;
+
+/* 
+
+// Refactor to passport.js based auth in the future.
+
+const passport = require('passport'); 
+
+*/
