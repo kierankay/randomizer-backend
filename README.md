@@ -28,10 +28,11 @@ This repo is for the backend server. For the frontend, see [randomizer-frontend]
 
 ## Features
 
-1. bcrypt-based sensitive data encryption
+1. Built-in use of environment variables to control app parameters
+1. Bcrypt-based encryption of sensitive data
 1. JWT based session management
 1. Auth routes
-1. RESTful user, cohort, pair, student routes
+1. RESTful user and cohort routes with resource nesting
 1. Helpers to assign students to pairs
 1. SES-integration for email-based password recovery
 
