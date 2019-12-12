@@ -49,7 +49,7 @@ async function randomizePairs(studentsList, minRepeatDistance, cohort) {
   // CREATE A NEW ADJACENCY MATRIX OF N * N DIMENSIONS
 
   let edges = await Pair.getPairsEdgeList(minRepeatDistance, cohort);
-  let recentGroup = edges[0].group_id;
+  let recentGroup = edges[0] ? edges[0].group_id : null;
   let studentCount = studentsList.length;
   let adjMatrix = new Array(studentCount);
   for (let i = 0; i < studentCount; i++) {
@@ -86,7 +86,7 @@ async function randomizePairs(studentsList, minRepeatDistance, cohort) {
   for (let i = 0; i < adjList.length; i++) {
     for (let j = 0; j < adjList[i].length; j++) {
       let randIdx = Math.floor(Math.random()*adjList[i].length);
-      let temp = adjList[i][randIdx]
+      let temp = adjList[i][randIdx];
       adjList[i][randIdx] = adjList[i][j];
       adjList[i][j] = temp;
     }
@@ -108,7 +108,7 @@ async function randomizePairs(studentsList, minRepeatDistance, cohort) {
         for (let j = 0; j < adjList[i].length; j++) {
           if (!used.has(adjList[i][j])) {
             if (i === adjList[i][j]) {
-              if ((studentCount - used) % 2 === 1) {
+              if ((studentCount - used) % 2 === 1 || studentCount === 1) {
                 pairs.push([i]);
                 used.add(i);
                 if (createPairs(i + 1)) {
