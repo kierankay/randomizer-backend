@@ -31,7 +31,32 @@ class Pair {
     }
     return groupResult.rows;
   }
-  
+
+
+  /*
+  Return grouped pairs with metadata.
+  Ex: [
+    {
+      "group": {
+        "id": 1,
+        "project": "New Project",
+        "date": "2019-11-05",
+        "cohort_id": 1,
+        "pairs": [
+          {
+            "student_1": {
+              "id": 1,
+              "first_name": "Kieran",
+              "last_name": "Kay"
+            },
+            "student_2": null
+          }
+        ]
+      }
+    }
+  ]
+  */
+
   static async getLastPairs(limit, cohort) {
     let result = await db.query(`
       SELECT row_to_json(g) as group
@@ -52,6 +77,23 @@ class Pair {
       ) as g
       WHERE cohort_id = $2
       `, [limit, cohort])
+    return result.rows;
+  }
+
+  /* 
+  Return pairs as weighted edge list.
+  Ex: [[1, 2, 1],[3, 4, 1], ...]
+  */
+
+  static async getPairsEdgeList(limit, cohort) {
+    let result = await db.query(`
+      SELECT pairs.student1_id, pairs.student2_id, pairs.group_id
+      FROM pairs
+      LEFT JOIN groups ON pairs.group_id = groups.id
+      WHERE groups.cohort_id = $2
+      AND pairs.group_id > (SELECT group_id FROM pairs ORDER BY group_id DESC LIMIT 1) - $1
+      ORDER BY pairs.group_id DESC
+      `, [limit, cohort]);
     return result.rows;
   }
 }
