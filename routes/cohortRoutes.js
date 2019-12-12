@@ -76,7 +76,7 @@ router.get('/:id/groups/random', async function (req, res, next) {
     let cohortId = req.params.id;
     let { min_paired_ago } = req.query;
     let list = await Student.getStudentsFromCohort(cohortId)
-    let pairs = await randomizePairs(list, min_paired_ago)
+    let pairs = await randomizePairs(list, min_paired_ago, cohortId)
     return res.json(pairs)
   } catch (err) {
     return next(err);
@@ -110,7 +110,7 @@ router.post('/:id/groups', async function (req, res, next) {
   ex: GET /api/cohorts/1/students
 */
 
-router.get('/:id/students', async function(req, res, next) {
+router.get('/:id/students', async function (req, res, next) {
   try {
     let cohortId = req.params.id;
     let students = await Student.getStudentsFromCohort(cohortId)
@@ -135,6 +135,31 @@ router.post('/:id/students', async function (req, res, next) {
     let student = req.body;
     student.cohort = cohortId;
     let result = await Student.addStudent(student);
+    return res.json(result);
+  } catch (err) {
+    return next(err);
+  }
+});
+
+/*
+  Get a limit-filtered edge list of pairs
+  ex: GET /api/cohorts/1/pairs?limit=1
+  body {
+    [
+      {
+        "student1_id": 6,
+        "student2_id": null,
+        "group_id": 5
+      }
+    ]
+  } 
+*/
+
+router.get('/:id/pairs', async function (req, res, next) {
+  try {
+    let cohortId = req.params.id;
+    let { limit } = req.query;
+    let result = await Pair.getPairsList(limit, cohortId);
     return res.json(result);
   } catch (err) {
     return next(err);
