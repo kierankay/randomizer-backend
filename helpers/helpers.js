@@ -1,225 +1,143 @@
 const db = require('../db');
+const Pair = require('../models/Pair');
 
-// New approach!!
-// Build weighted adjacency matrix by distance to last pairing (create takes O(n) given pairslist)
-// Build adjacency list satisfying min distance to last pairing (create takes O(n) given adjMatrix)
-  // Shuffle data (to eliminate first-discovered-pair bias)
-    // Shuffle list order
-    // Shuffle adjacent vertices order
-  // Initialize vars
-    // let pairs = [];
-    // let used = new Set();
-// Recursively create validPairs(startIdx) (takes O(n^2) worst case, O(n) best case)
-  // Establish base case
-    // if used.length === students.length return pairs;
-  // loop starting at startIdx
-    // If student index not in used
-      // loop starting at 0
-        // If adjacent student not in used
-          // If index === adjacent 
-            // if students.length - used.size % 2 === 1)
-              // create pair (pairs.push(), used.add(idx, adjacent))
-              // if (createPairFromNext(i+1)) return true;
-              // else (pairs.pop(), used.delete(idx, adjacent))
-          // Else 
-            // create pair (pairs.push(), used.add(idx, adjacent))
-            // if (createPairFromNext(i+1)) return true;
-            // else (pairs.pop(), used.delete(idx, adjacent));
-    // return false;
+/*
+Pairing Algorithm: 
 
-async function randomizePairs(studentsList, minRepeatDistance) {
-  // Prevent infinite loops by disallowing impossible min repeat distances
-  minRepeatDistance = minRepeatDistance > studentsList.length - 2 ? studentsList.length - 2 : minRepeatDistance
+Runtimes
+--------
+Total theoretical runtime O(n^2)
+Parse edge list in database into adjacency matrix weighted by distance to last pairing (O(n) runtime)
+Parse adjacency matrix into adjacency list satisfying min distance to last pairing (O(n) runtime)
+Recursively compute validPairs from adjacency matrix O(n^2)
 
-  // Create a copy of the list to manipulate
-  let rndStudents = studentsList.slice();
+Algorithms
+--------
+Parse edge list into adjacency matrix
+Parse adjacency matrix into min-distance-filtered adjacency list
+Shuffle adjacent vertices order to eliminate first-discovery in ordered-data bias
+Recursively compute valid pairs
+  Establish base case
+    if used.length === students.length return pairs;
+  loop starting at startIdx
+    If student index not in used
+      loop starting at 0
+        If adjacent student not in used
+          If index === adjacent 
+            if students.length - used.size % 2 === 1)
+              create pair (pairs.push(), used.add(idx, adjacent))
+              if (createPairFromNext(i+1)) return true;
+              else (pairs.pop(), used.delete(idx, adjacent))
+          Else 
+            create pair (pairs.push(), used.add(idx, adjacent))
+            if (createPairFromNext(i+1)) return true;
+            else (pairs.pop(), used.delete(idx, adjacent));
+    return false;
+*/
 
-  // Increase the number of randomization passes to reduce chances of 
-  // Response's initial-order bias.
-  let passes = 1;
+async function randomizePairs(studentsList, minRepeatDistance, cohort) {
 
-  // Randomize the student positions to reduce the initial ordered first-pair bias
-  // by swapping each student with another student at random
-  for (let j = 0; j < passes; j++) {
-    for (let i = 0; i < rndStudents.length; i++) {
-      let len = rndStudents.length;
-      let rndIdx = Math.floor(Math.random() * len);
-      let temp = rndStudents[rndIdx];
-      rndStudents[rndIdx] = rndStudents[i];
-      rndStudents[i] = temp;
+  // REINDEX STUDENT_IDS TO 0-N
+  // TO MINIMIZE MATRIX DIMENSIONS
+  let newToOldMap = [];
+  let oldToNewMap = [];
+  for (let i = 0; i < studentsList.length; i++) {
+    newToOldMap[i] = studentsList[i].id;
+    oldToNewMap[studentsList[i].id] = i;
+  }
+
+  // CREATE A NEW ADJACENCY MATRIX OF N * N DIMENSIONS
+
+  let edges = await Pair.getPairsEdgeList(minRepeatDistance, cohort);
+  let recentGroup = edges[0].group_id;
+  let studentCount = studentsList.length;
+  let adjMatrix = new Array(studentCount);
+  for (let i = 0; i < studentCount; i++) {
+    adjMatrix[i] = new Array(studentCount);
+  }
+
+  // POPULATE THE ADJACENCY MATRIX USING NEW INDICES
+  
+  for (let edge of edges) {
+    let s1 = oldToNewMap[edge.student1_id];
+    let s2 = oldToNewMap[edge.student2_id] || s1;
+    let weight = edge.group_id;
+    if (adjMatrix[s1][s2] === undefined) {
+      adjMatrix[s1][s2] = weight;
+      adjMatrix[s2][s1] = weight;
     }
   }
 
-  let pairs = []
-  while (tempStudentsList.length > 0) {
-    // Initialize a round counter to make sure we don't get stuck in an infinite loop
-    // If a min-paired-ago constrained set of pairs is impossible
-    let roundCount = 0;
-    let pair = {}
+  // COMPUTE ADJACENCY LIST GIVEN MIN PAIR DISTANCE
+  // CLEAR WHEN NEW PAIRS CREATED
+  let adjList = new Array(adjMatrix.length);
 
-    // Get the first student from a random index and add them to a new pair
-    let idx = randomizeListIndex(tempStudentsList);
-    let student1 = tempStudentsList.splice(idx, 1)[0]
-    pair = addStudentToPair(pair, student1)
-
-
-    while (Object.keys(pair).length < 2 && tempStudentsList.length > 0) {
-      // Pick a random remaining student and check how long ago they paired with the first student
-      idx = randomizeListIndex(tempStudentsList);
-      let lastPairedDistance = await lastPaired(pair.student_1, tempStudentsList[idx]);
-
-      // Increment the round counter
-      roundCount += 1;
-
-      // If the last time they paired is an acceptable distance ago
-      // Add the pair to the accepted list of pairs
-      if (lastPairedDistance >= minRepeatDistance) {
-        let student2 = tempStudentsList.splice(idx, 1)[0]
-        pair = addStudentToPair(pair, student2)
-
-        // If the remaining students can't make a pair that hasn't paired recently
-        // then restart the pairing process from scratch
-      } else if (roundCount > tempStudentsList.length ** 2) {
-        pairs = [];
-        return await randomizePairs(studentsList, minRepeatDistance)
+  for (let i = 0; i < adjMatrix.length; i++) {
+    adjList[i] = [];
+    for (let j = 0; j < adjMatrix[0].length; j++) {
+      if (adjMatrix[i][j] === undefined || adjMatrix[i][j] <= recentGroup - minRepeatDistance) {
+        adjList[i].push(j);
       }
     }
-
-    // Restart the pairing process if the last student was solo too recently
-    if (pair.length === 1) {
-      let lastSoloDistance = await lastSolo(pair[0])
-      if (lastSoloDistance < minRepeatDistance) {
-        pairs = [];
-        return await randomizePairs(studentsList, minRepeatDistance)
-      }
-    }
-
-    pairs.push(pair)
   }
+
+  // SHUFFLE AdjList to introduce randomness
+
+  for (let i = 0; i < adjList.length; i++) {
+    for (let j = 0; j < adjList[i].length; j++) {
+      let randIdx = Math.floor(Math.random()*adjList[i].length);
+      let temp = adjList[i][randIdx]
+      adjList[i][randIdx] = adjList[i][j];
+      adjList[i][j] = temp;
+    }
+  }
+
+  // FIND AND RETURN FIRST QUALIFYING PAIR USING RECURSION
+  // INPUTS: list of students, pairs, set of used students
+  // OUTPUTS: 
+
+  let used = new Set();
+  let pairs = [];
+
+  function createPairs(start) {
+    if (used.size === studentCount) {
+      return true;
+    }
+    for (let i = start; i < adjList.length; i++) {
+      if (!used.has(i)) {
+        for (let j = 0; j < adjList[i].length; j++) {
+          if (!used.has(adjList[i][j])) {
+            if (i === adjList[i][j]) {
+              if ((studentCount - used) % 2 === 1) {
+                pairs.push([i]);
+                used.add(i);
+                if (createPairs(i + 1)) {
+                  return true;
+                } else {
+                  pairs.pop();
+                  used.delete(i);
+                }
+              }
+            } else {
+              pairs.push([i, adjList[i][j]]);
+              used.add(i) 
+              used.add(adjList[i][j]);
+              if (createPairs(i + 1)) {
+                return true;
+              } else {
+                pairs.pop();
+                used.delete(i)
+                used.delete(adjList[i][j]);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  createPairs(0);
   return pairs;
-}
-
-// Function to generate randomized pairs
-// async function randomizePairs(studentsList, minRepeatDistance) {
-//   // Prevent infinite loops by disallowing impossible min repeat distances
-//   minRepeatDistance = minRepeatDistance > studentsList.length - 2 ? studentsList.length - 2 : minRepeatDistance
-
-//   // Create a copy of the list, that we can cut students out of to create pairs
-//   // to eliminate potential repetitions
-//   let tempStudentsList = studentsList.slice()
-//   let pairs = []
-//   while (tempStudentsList.length > 0) {
-//     // Initialize a round counter to make sure we don't get stuck in an infinite loop
-//     // If a min-paired-ago constrained set of pairs is impossible
-//     let roundCount = 0;
-//     let pair = {}
-
-//     // Get the first student from a random index and add them to a new pair
-//     let idx = randomizeListIndex(tempStudentsList);
-//     let student1 = tempStudentsList.splice(idx, 1)[0]
-//     pair = addStudentToPair(pair, student1)
-
-
-//     while (Object.keys(pair).length < 2 && tempStudentsList.length > 0) {
-//       // Pick a random remaining student and check how long ago they paired with the first student
-//       idx = randomizeListIndex(tempStudentsList);
-//       let lastPairedDistance = await lastPaired(pair.student_1, tempStudentsList[idx]);
-
-//       // Increment the round counter
-//       roundCount += 1;
-
-//       // If the last time they paired is an acceptable distance ago
-//       // Add the pair to the accepted list of pairs
-//       if (lastPairedDistance >= minRepeatDistance) {
-//         let student2 = tempStudentsList.splice(idx, 1)[0]
-//         pair = addStudentToPair(pair, student2)
-
-//         // If the remaining students can't make a pair that hasn't paired recently
-//         // then restart the pairing process from scratch
-//       } else if (roundCount > tempStudentsList.length ** 2) {
-//         pairs = [];
-//         return await randomizePairs(studentsList, minRepeatDistance)
-//       }
-//     }
-
-//     // Restart the pairing process if the last student was solo too recently
-//     if (pair.length === 1) {
-//       let lastSoloDistance = await lastSolo(pair[0])
-//       if (lastSoloDistance < minRepeatDistance) {
-//         pairs = [];
-//         return await randomizePairs(studentsList, minRepeatDistance)
-//       }
-//     }
-
-//     pairs.push(pair)
-//   }
-//   return pairs;
-// }
-
-function addStudentToPair(pair, student) {
-  if (!pair.student_1) {
-    pair.student_1 = student
-  } else {
-    pair.student_2 = student
-  }
-  return pair
-}
-
-function randomizeListIndex(list) {
-  let num = Math.floor(Math.random() * list.length);
-  return num
-}
-
-async function lastSolo(student) {
-  let currentPair = await db.query(`
-  SELECT *
-  FROM pairs
-  ORDER BY group_id DESC
-  LIMIT 1`);
-  let currentGroup = 0;
-  if (currentPair.rows.length > 0) {
-    currentGroup = currentPair.rows[0].group_id;
-  }
-
-  let result = await db.query(`
-  SELECT *
-  FROM pairs
-  WHERE student1_id = $1 AND student2_id IS NULL
-  ORDER BY group_id DESC
-  LIMIT 1`, [student.id])
-  if (result.rows.length > 0) {
-    let lastSoloDistance = currentGroup - result.rows[0].group_id;
-    return lastSoloDistance;
-  }
-  return 10000
-}
-
-async function lastPaired(student1, student2) {
-  let currentPair = await db.query(`
-  SELECT *
-  FROM pairs
-  ORDER BY group_id DESC
-  LIMIT 1`);
-
-  // if no pairs yet populated, don't expect there to be a pair, otherwise compare to most recent pair
-  let currentGroup = 0;
-  if (currentPair.rows.length > 0) {
-    currentGroup = currentPair.rows[0].group_id;
-  }
-
-  let result = await db.query(`
-  SELECT *
-  FROM pairs
-  WHERE (student1_id = $1 AND student2_id = $2) 
-  OR (student1_id = $2 AND student2_id = $1)
-  ORDER BY group_id DESC 
-  LIMIT 1
-  `, [student1.id, student2.id])
-  if (result.rows.length > 0) {
-    let lastPaired = currentGroup - result.rows[0].group_id;
-    return lastPaired;
-  }
-  return 10000;
 }
 
 module.exports = {
