@@ -42,7 +42,7 @@ async function randomizePairs(studentsList, minRepeatDistance, cohort) {
   let newToOldMap = [];
   let oldToNewMap = [];
   for (let i = 0; i < studentsList.length; i++) {
-    newToOldMap[i] = studentsList[i].id;
+    newToOldMap[i] = studentsList[i];
     oldToNewMap[studentsList[i].id] = i;
   }
 
@@ -135,9 +135,23 @@ async function randomizePairs(studentsList, minRepeatDistance, cohort) {
       }
     }
   }
-
   createPairs(0);
-  return pairs;
+  
+  // Rebuild the pairs using the first map we created from new to old indexes
+  
+  let rebuiltPairs = [];
+
+  for (let pair of pairs) {
+    let mappedStudent1 = newToOldMap[pair[0]];
+    let mappedStudent2 = newToOldMap[pair[1]];
+    let newPair = {
+      student_1: mappedStudent1,
+      student_2: mappedStudent2
+    };
+    rebuiltPairs.push(newPair);
+  }
+
+  return rebuiltPairs;
 }
 
 module.exports = {
