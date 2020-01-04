@@ -10,29 +10,6 @@ Total theoretical runtime O(n^3)
 Parse edge list in database into adjacency matrix weighted by distance to last pairing (O(n) runtime)
 Parse adjacency matrix into adjacency list satisfying min distance to last pairing (O(n) runtime)
 Recursively compute validPairs from adjacency matrix O(n^3)
-
-Algorithms
---------
-Parse edge list into adjacency matrix
-Parse adjacency matrix into min-distance-filtered adjacency list
-Shuffle adjacent vertices order to eliminate first-discovery in ordered-data bias
-Recursively compute valid pairs
-  Establish base case
-    if used.length === students.length return pairs;
-  loop starting at startIdx
-    If student index not in used
-      loop starting at 0
-        If adjacent student not in used
-          If index === adjacent 
-            if students.length - used.size % 2 === 1)
-              create pair (pairs.push(), used.add(idx, adjacent))
-              if (createPairFromNext(i+1)) return true;
-              else (pairs.pop(), used.delete(idx, adjacent))
-          Else 
-            create pair (pairs.push(), used.add(idx, adjacent))
-            if (createPairFromNext(i+1)) return true;
-            else (pairs.pop(), used.delete(idx, adjacent));
-    return false;
 */
 
 async function randomizePairs(studentsList, minRepeatDistance, cohort) {
