@@ -11,7 +11,21 @@ class Student {
     `, [first_name, last_name, cohort]);
     return result.rows[0];
   }
-  
+
+  /*
+    Fetch all students from a cohort
+    input: 1
+    output: [
+      {
+        id: 1,
+        first_name: Kieran,
+        last_name: Kay,
+        cohort_id: 1
+      },
+      ...
+    ]
+*/
+
   static async getStudentsFromCohort(cohort) {
     let result = await db.query(`
       SELECT *
@@ -19,6 +33,7 @@ class Student {
       WHERE cohort_id = $1
       ORDER BY last_name ASC
     `, [cohort])
+    console.log(result.rows);
     return result.rows
   }
 }
