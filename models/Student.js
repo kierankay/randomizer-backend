@@ -33,7 +33,6 @@ class Student {
       WHERE cohort_id = $1
       ORDER BY last_name ASC
     `, [cohort])
-    console.log(result.rows);
     return result.rows
   }
 }
