@@ -13,8 +13,8 @@ Recursively compute validPairs from adjacency matrix O(n^3)
 
 async function randomizePairs(studentsList, minRepeatDistance, cohort) {
 
-  // REINDEX STUDENT_IDS TO 0-N
-  // TO MINIMIZE MATRIX DIMENSIONS
+  // Give students a temporary id from 0 to n. This enables the use of a dense
+  // adjacency matrix
   let newToOldMap = [];
   let oldToNewMap = [];
   for (let i = 0; i < studentsList.length; i++) {
@@ -22,18 +22,17 @@ async function randomizePairs(studentsList, minRepeatDistance, cohort) {
     oldToNewMap[studentsList[i].id] = i;
   }
 
-  // CREATE A NEW ADJACENCY MATRIX OF N * N DIMENSIONS
-
-  let edges = await Pair.getPairsEdgeList(minRepeatDistance, cohort);
-  let recentGroup = edges[0] ? edges[0].group_id : null;
+  // create a new n * n empty adjacency matrix
   let studentCount = studentsList.length;
   let adjMatrix = new Array(studentCount);
   for (let i = 0; i < studentCount; i++) {
     adjMatrix[i] = new Array(studentCount);
   }
 
-  // POPULATE THE ADJACENCY MATRIX USING NEW INDICES
-  
+  // Fetch minRepeatDistance past pairs from the cohort
+  // and populate the adjacency matrix at indices according to students' 
+  // temporary ids
+  let edges = await Pair.getPairsEdgeList(minRepeatDistance, cohort);
   for (let edge of edges) {
     let s1 = oldToNewMap[edge.student1_id];
     let s2 = oldToNewMap[edge.student2_id] || s1;
@@ -44,8 +43,10 @@ async function randomizePairs(studentsList, minRepeatDistance, cohort) {
     }
   }
 
-  // COMPUTE ADJACENCY LIST GIVEN MIN PAIR DISTANCE
-  // CLEAR WHEN NEW PAIRS CREATED
+  // Compute an adjacency list of the past pairs given the minPairDistance.
+  // Clear this whenever new pairs are created.
+
+  let recentGroup = edges[0] ? edges[0].group_id : null;
   let adjList = new Array(adjMatrix.length);
 
   for (let i = 0; i < adjMatrix.length; i++) {
@@ -57,7 +58,7 @@ async function randomizePairs(studentsList, minRepeatDistance, cohort) {
     }
   }
 
-  // SHUFFLE AdjList to introduce randomness
+  // Shuffle the adjacency list to introduce randomness.
 
   for (let i = 0; i < adjList.length; i++) {
     for (let j = 0; j < adjList[i].length; j++) {
@@ -68,7 +69,7 @@ async function randomizePairs(studentsList, minRepeatDistance, cohort) {
     }
   }
 
-  // FIND AND RETURN FIRST QUALIFYING PAIR USING RECURSION
+  // Recursively find and return the first valid pair
   // INPUTS: list of students, pairs, set of used students
   // OUTPUTS: 
 
