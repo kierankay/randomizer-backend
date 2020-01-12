@@ -2,6 +2,16 @@ const db = require('../db');
 
 class Student {
 
+  /*
+    Add a new student to a cohort
+    inputs: "Kieran", "Kay", 1
+    output: {
+      first_name: "Kieran",
+      last_name: "Kay",
+      cohort_id: 1
+    }
+  */
+
   static async addStudent({ first_name, last_name, cohort }) {
     let result = await db.query(`
     INSERT INTO students
