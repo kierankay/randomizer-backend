@@ -23,8 +23,10 @@ async function randomizePairs(studentsList, minRepeatDistance, cohort) {
 }
 
 function createNormalizedIdMaps(studentsList) {
+
   // Give students a temporary id from 0 to n. This enables the use of a dense
   // adjacency matrix
+
   let newToOldMap = [];
   let oldToNewMap = [];
 
@@ -37,7 +39,9 @@ function createNormalizedIdMaps(studentsList) {
 }
 
 function createAdjMatrix(studentCount, edgeList, oldToNewMap) {
+
   // create a new n * n empty adjacency matrix
+
   let adjMatrix = new Array(studentCount);
   for (let i = 0; i < studentCount; i++) {
     adjMatrix[i] = new Array(studentCount);
@@ -46,6 +50,7 @@ function createAdjMatrix(studentCount, edgeList, oldToNewMap) {
   // Fetch minRepeatDistance past pairs from the cohort
   // and populate the adjacency matrix at indices according to students' 
   // temporary ids
+
   for (let edge of edgeList) {
     let s1 = oldToNewMap[edge.student1_id];
     let s2 = oldToNewMap[edge.student2_id] || s1; // for solo students
@@ -64,8 +69,10 @@ async function getRecentGroupId(edgeList) {
 }
 
 function createAdjList(adjMatrix, recentGroup, minRepeatDistance) {
+
   // Compute an adjacency list of the possible pairs given the minPairDistance.
   // Clear this whenever new pairs are created.
+
   let adjList = new Array(adjMatrix.length);
   for (let i = 0; i < adjMatrix.length; i++) {
     adjList[i] = [];
@@ -79,7 +86,9 @@ function createAdjList(adjMatrix, recentGroup, minRepeatDistance) {
 }
 
 function shuffleAdjList(adjList) {
+
   // Shuffle the adjacency list to introduce randomness.
+
   for (let i = 0; i < adjList.length; i++) {
     for (let j = 0; j < adjList[i].length; j++) {
       let randIdx = Math.floor(Math.random() * adjList[i].length);
@@ -92,9 +101,10 @@ function shuffleAdjList(adjList) {
 }
 
 function createPairs(adjList, studentCount, start = 0, used = new Set(), pairs = []) {
+
   // Recursively find and return the first valid pair
   // INPUTS: list of students, pairs, set of used students
-  // OUTPUTS: 
+
   if (used.size === studentCount) {
     return pairs;
   }
@@ -134,7 +144,9 @@ function createPairs(adjList, studentCount, start = 0, used = new Set(), pairs =
 }
 
 function deNormalizeIds(pairs, newToOldMap) {
+
     // Rebuild the pairs using the first map we created from new to old indexes
+    
     let rebuiltPairs = [];
     for (let pair of pairs) {
       let mappedStudent1 = newToOldMap[pair[0]];
