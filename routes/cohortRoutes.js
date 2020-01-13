@@ -5,7 +5,7 @@ const User = require('../models/User');
 const Cohort = require('../models/Cohort');
 const Student = require('../models/Student');
 const Pair = require('../models/Pair');
-const { randomizePairs } = require('../helpers/helpers');
+const { randomizePairs } = require('../helpers/randomizePairs');
 
 const router = express.Router();
 router.use(User.verifyJwt)
