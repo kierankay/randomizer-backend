@@ -5,9 +5,9 @@ Pairing Algorithm:
 
 Runtimes
 --------
-Total theoretical runtime O(n^3)
-Parse edge list in database into adjacency matrix weighted by distance to last pairing (O(n) runtime)
-Parse adjacency matrix into adjacency list satisfying min distance to last pairing (O(n) runtime)
+Max runtime O(n^3)
+Parse edge list in database into adjacency matrix weighted by distance to last pairing (O(n))
+Parse adjacency matrix into adjacency list satisfying min distance to last pairing (O(n))
 Recursively compute validPairs from adjacency matrix O(n^3)
 */
 
