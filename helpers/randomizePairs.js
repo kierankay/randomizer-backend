@@ -10,9 +10,8 @@ Pairing Algorithm Runtimes - O(n^3)
 5. Recursively search for a full list of validPairs from the adjacency matrix O(n^3)
 */
 
-async function randomizePairs(studentsList, minRepeatDistance, cohort) {
+async function randomizePairs(studentsList, edgeList, minRepeatDistance) {
   let { newToOldMap, oldToNewMap } = createNormIdMaps(studentsList);
-  let edgeList = await Pair.getPairsEdgeList(minRepeatDistance, cohort);
   let adjMatrix = createNormAdjMatrix(studentsList.length, edgeList, oldToNewMap);
   let recentGroup = getRecentGroupId(edgeList);
   let adjList = createAdjList(adjMatrix, recentGroup, minRepeatDistance);
