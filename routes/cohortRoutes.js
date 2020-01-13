@@ -76,7 +76,7 @@ router.get('/:id/groups/random', async function (req, res, next) {
     let cohortId = req.params.id;
     let { min_paired_ago } = req.query;
     let list = await Student.getStudentsFromCohort(cohortId);
-    let edgeList = await Pair.getPairsEdgeList(minRepeatDistance, cohortId);
+    let edgeList = await Pair.getPairsEdgeList(min_paired_ago, cohortId);
     let pairs = await randomizePairs(list, edgeList, min_paired_ago);
     return res.json(pairs);
   } catch (err) {
