@@ -10,7 +10,6 @@ class Pair {
       RETURNING id, project, date, cohort_id
       `, [project, cohort]
     )
-    
     for (let pair of group) {
       if (Object.keys(pair).length === 2) {
         await db.query(`
