@@ -22,7 +22,7 @@ const cohortRoutes = require('./routes/cohortRoutes');
 app.use('/api/users', userRoutes);
 app.use('/api/cohorts', cohortRoutes);
 
-// ERROR HANDLING
+// Error handling
 
 app.use(function (req, res, next) {
   const err = new ExpressError('resource not found', 404);
