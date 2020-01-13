@@ -3,7 +3,6 @@ const db = require('../db');
 class Pair {
 
   static async acceptPairs(group, project, cohort) {
-    console.log(group, project, cohort)
     let groupResult = await db.query(`
       INSERT INTO groups
       (project, cohort_id)
@@ -11,7 +10,7 @@ class Pair {
       RETURNING id, project, date, cohort_id
       `, [project, cohort]
     )
-    console.log(groupResult.rows)
+    
     for (let pair of group) {
       if (Object.keys(pair).length === 2) {
         await db.query(`
