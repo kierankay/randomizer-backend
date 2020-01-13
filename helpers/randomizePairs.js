@@ -3,11 +3,12 @@ const Pair = require('../models/Pair');
 /*
 Pairing Algorithm Runtimes - O(n^3)
 --------
-1. Parse edge list from database into memory O(n)
+1. Remap student IDs starting from 0 for efficient use in adjacency matrix
 2. Convert edge list into an adjacency matrix weighted by distance to last pairing (O(n))
 3. Parse adjacency matrix into adjacency list satisfying min distance to last pairing (O(n))
 4. Shuffle the adjacency list O(n)
 5. Recursively search for a full list of validPairs from the adjacency matrix O(n^3)
+6. Convert student IDs back to old format
 */
 
 async function randomizePairs(studentsList, edgeList, minRepeatDistance) {
