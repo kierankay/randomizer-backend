@@ -12,7 +12,6 @@ Recursively compute validPairs from adjacency matrix O(n^3)
 */
 
 async function randomizePairs(studentsList, minRepeatDistance, cohort) {
-
   // Give students a temporary id from 0 to n. This enables the use of a dense
   // adjacency matrix
   let newToOldMap = [];
@@ -23,8 +22,9 @@ async function randomizePairs(studentsList, minRepeatDistance, cohort) {
     oldToNewMap[studentsList[i].id] = i;
   }
 
-  let adjMatrix = await createAdjMatrix(studentsList.length, oldToNewMap, minRepeatDistance, cohort);
-  let recentGroup = await getRecentGroup(cohort);
+  let edgeList = await Pair.getPairsEdgeList(minRepeatDistance, cohort);
+  let adjMatrix = await createAdjMatrix(studentsList.length, oldToNewMap, edgeList);
+  let recentGroup = await getRecentGroupId(cohort);
   let adjList = createAdjList(adjMatrix, recentGroup, minRepeatDistance);
   let shuffledAdjList = shuffleAdjList(adjList);
   let pairs = createPairs(shuffledAdjList, studentsList.length);
@@ -43,7 +43,7 @@ async function randomizePairs(studentsList, minRepeatDistance, cohort) {
   return rebuiltPairs;
 }
 
-async function createAdjMatrix(studentCount, oldToNewMap, minRepeatDistance, cohort) {
+async function createAdjMatrix(studentCount, oldToNewMap, edgeList) {
   // create a new n * n empty adjacency matrix
   let adjMatrix = new Array(studentCount);
   for (let i = 0; i < studentCount; i++) {
@@ -53,8 +53,7 @@ async function createAdjMatrix(studentCount, oldToNewMap, minRepeatDistance, coh
   // Fetch minRepeatDistance past pairs from the cohort
   // and populate the adjacency matrix at indices according to students' 
   // temporary ids
-  let edges = await Pair.getPairsEdgeList(minRepeatDistance, cohort);
-  for (let edge of edges) {
+  for (let edge of edgeList) {
     let s1 = oldToNewMap[edge.student1_id];
     let s2 = oldToNewMap[edge.student2_id] || s1; // for solo students
     let weight = edge.group_id;
@@ -66,9 +65,8 @@ async function createAdjMatrix(studentCount, oldToNewMap, minRepeatDistance, coh
   return adjMatrix;
 }
 
-async function getRecentGroup(cohort) {
-  let edges = await Pair.getPairsEdgeList(1, cohort);
-  let recentGroup = edges[0] ? edges[0].group_id : null;
+async function getRecentGroupId(edgeList) {
+  let recentGroup = edgeList[0] ? edgeList[0].group_id : null;
   return recentGroup;
 }
 
@@ -88,7 +86,6 @@ function createAdjList(adjMatrix, recentGroup, minRepeatDistance) {
 }
 
 function shuffleAdjList(adjList) {
-
   // Shuffle the adjacency list to introduce randomness.
   for (let i = 0; i < adjList.length; i++) {
     for (let j = 0; j < adjList[i].length; j++) {
@@ -114,7 +111,7 @@ function createPairs(adjList, studentCount, start = 0, used = new Set(), pairs =
       for (let j = 0; j < adjList[i].length; j++) {
         if (!used.has(adjList[i][j])) {
           if (i === adjList[i][j]) {
-            if ((studentCount - used) % 2 === 1 || studentCount === 1) {
+            if ((studentCount - used.size) % 2 === 1 || studentCount === 1) {
               pairs.push([i]);
               used.add(i);
               if (createPairs(adjList, studentCount, i + 1, used, pairs)) {
@@ -144,5 +141,10 @@ function createPairs(adjList, studentCount, start = 0, used = new Set(), pairs =
 }
 
 module.exports = {
-  randomizePairs
+  randomizePairs,
+  createAdjMatrix,
+  getRecentGroupId,
+  createAdjList,
+  shuffleAdjList,
+  createPairs
 }
