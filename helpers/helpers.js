@@ -23,8 +23,8 @@ async function randomizePairs(studentsList, minRepeatDistance, cohort) {
   }
 
   let edgeList = await Pair.getPairsEdgeList(minRepeatDistance, cohort);
-  let adjMatrix = await createAdjMatrix(studentsList.length, oldToNewMap, edgeList);
-  let recentGroup = await getRecentGroupId(cohort);
+  let adjMatrix = createAdjMatrix(studentsList.length, oldToNewMap, edgeList);
+  let recentGroup = getRecentGroupId(cohort);
   let adjList = createAdjList(adjMatrix, recentGroup, minRepeatDistance);
   let shuffledAdjList = shuffleAdjList(adjList);
   let pairs = createPairs(shuffledAdjList, studentsList.length);
