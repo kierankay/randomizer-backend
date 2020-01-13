@@ -11,7 +11,6 @@ Pairing Algorithm Runtimes - O(n^3)
 */
 
 async function randomizePairs(studentsList, minRepeatDistance, cohort) {
-
   let { newToOldMap, oldToNewMap } = createNormalizedIdMaps(studentsList);
   let edgeList = await Pair.getPairsEdgeList(minRepeatDistance, cohort);
   let adjMatrix = createAdjMatrix(studentsList.length, edgeList, oldToNewMap);
@@ -151,10 +150,11 @@ function deNormalizeIds(pairs, newToOldMap) {
 
 module.exports = {
   randomizePairs,
+  createNormalizedIdMaps,
   createAdjMatrix,
   getRecentGroupId,
   createAdjList,
   shuffleAdjList,
   createPairs,
-  deNormalizeStudentIds
+  deNormalizeIds
 }
