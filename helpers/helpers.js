@@ -1,17 +1,29 @@
 const Pair = require('../models/Pair');
 
 /*
-Pairing Algorithm: 
-
-Runtimes
+Pairing Algorithm Runtimes - O(n^3)
 --------
-Max runtime O(n^3)
-Parse edge list in database into adjacency matrix weighted by distance to last pairing (O(n))
-Parse adjacency matrix into adjacency list satisfying min distance to last pairing (O(n))
-Recursively compute validPairs from adjacency matrix O(n^3)
+1. Parse edge list from database into memory O(n)
+2. Convert edge list into an adjacency matrix weighted by distance to last pairing (O(n))
+3. Parse adjacency matrix into adjacency list satisfying min distance to last pairing (O(n))
+4. Shuffle the adjacency list O(n)
+5. Recursively search for a full list of validPairs from the adjacency matrix O(n^3)
 */
 
 async function randomizePairs(studentsList, minRepeatDistance, cohort) {
+
+  let { newToOldMap, oldToNewMap } = createNormalizedIdMaps(studentsList);
+  let edgeList = await Pair.getPairsEdgeList(minRepeatDistance, cohort);
+  let adjMatrix = createAdjMatrix(studentsList.length, edgeList, oldToNewMap);
+  let recentGroup = getRecentGroupId(cohort);
+  let adjList = createAdjList(adjMatrix, recentGroup, minRepeatDistance);
+  let shuffledAdjList = shuffleAdjList(adjList);
+  let pairs = createPairs(shuffledAdjList, studentsList.length);
+  let rebuiltPairs = deNormalizeIds(pairs, newToOldMap);
+  return rebuiltPairs;
+}
+
+function createNormalizedIdMaps(studentsList) {
   // Give students a temporary id from 0 to n. This enables the use of a dense
   // adjacency matrix
   let newToOldMap = [];
@@ -22,28 +34,10 @@ async function randomizePairs(studentsList, minRepeatDistance, cohort) {
     oldToNewMap[studentsList[i].id] = i;
   }
 
-  let edgeList = await Pair.getPairsEdgeList(minRepeatDistance, cohort);
-  let adjMatrix = createAdjMatrix(studentsList.length, oldToNewMap, edgeList);
-  let recentGroup = getRecentGroupId(cohort);
-  let adjList = createAdjList(adjMatrix, recentGroup, minRepeatDistance);
-  let shuffledAdjList = shuffleAdjList(adjList);
-  let pairs = createPairs(shuffledAdjList, studentsList.length);
-  // Rebuild the pairs using the first map we created from new to old indexes
-
-  let rebuiltPairs = [];
-  for (let pair of pairs) {
-    let mappedStudent1 = newToOldMap[pair[0]];
-    let mappedStudent2 = newToOldMap[pair[1]];
-    let newPair = {
-      student_1: mappedStudent1,
-      student_2: mappedStudent2
-    };
-    rebuiltPairs.push(newPair);
-  }
-  return rebuiltPairs;
+  return { newToOldMap, oldToNewMap }
 }
 
-async function createAdjMatrix(studentCount, oldToNewMap, edgeList) {
+function createAdjMatrix(studentCount, edgeList, oldToNewMap) {
   // create a new n * n empty adjacency matrix
   let adjMatrix = new Array(studentCount);
   for (let i = 0; i < studentCount; i++) {
@@ -105,7 +99,7 @@ function createPairs(adjList, studentCount, start = 0, used = new Set(), pairs =
   if (used.size === studentCount) {
     return pairs;
   }
-  
+
   for (let i = start; i < adjList.length; i++) {
     if (!used.has(i)) {
       for (let j = 0; j < adjList[i].length; j++) {
@@ -140,11 +134,27 @@ function createPairs(adjList, studentCount, start = 0, used = new Set(), pairs =
   return false;
 }
 
+function deNormalizeIds(pairs, newToOldMap) {
+    // Rebuild the pairs using the first map we created from new to old indexes
+    let rebuiltPairs = [];
+    for (let pair of pairs) {
+      let mappedStudent1 = newToOldMap[pair[0]];
+      let mappedStudent2 = newToOldMap[pair[1]];
+      let newPair = {
+        student_1: mappedStudent1,
+        student_2: mappedStudent2
+      };
+      rebuiltPairs.push(newPair);
+    }
+    return rebuiltPairs;
+}
+
 module.exports = {
   randomizePairs,
   createAdjMatrix,
   getRecentGroupId,
   createAdjList,
   shuffleAdjList,
-  createPairs
+  createPairs,
+  deNormalizeStudentIds
 }
