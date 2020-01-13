@@ -11,18 +11,18 @@ Pairing Algorithm Runtimes - O(n^3)
 */
 
 async function randomizePairs(studentsList, minRepeatDistance, cohort) {
-  let { newToOldMap, oldToNewMap } = createNormalizedIdMaps(studentsList);
+  let { newToOldMap, oldToNewMap } = createNormIdMaps(studentsList);
   let edgeList = await Pair.getPairsEdgeList(minRepeatDistance, cohort);
-  let adjMatrix = createAdjMatrix(studentsList.length, edgeList, oldToNewMap);
+  let adjMatrix = createNormAdjMatrix(studentsList.length, edgeList, oldToNewMap);
   let recentGroup = getRecentGroupId(cohort);
   let adjList = createAdjList(adjMatrix, recentGroup, minRepeatDistance);
   let shuffledAdjList = shuffleAdjList(adjList);
   let pairs = createPairs(shuffledAdjList, studentsList.length);
-  let rebuiltPairs = deNormalizeIds(pairs, newToOldMap);
+  let rebuiltPairs = deNormIds(pairs, newToOldMap);
   return rebuiltPairs;
 }
 
-function createNormalizedIdMaps(studentsList) {
+function createNormIdMaps(studentsList) {
 
   // Give students a temporary id from 0 to n. This enables the use of a dense
   // adjacency matrix
@@ -38,7 +38,7 @@ function createNormalizedIdMaps(studentsList) {
   return { newToOldMap, oldToNewMap }
 }
 
-function createAdjMatrix(studentCount, edgeList, oldToNewMap) {
+function createNormAdjMatrix(studentCount, edgeList, oldToNewMap) {
 
   // create a new n * n empty adjacency matrix
 
@@ -143,10 +143,10 @@ function createPairs(adjList, studentCount, start = 0, used = new Set(), pairs =
   return false;
 }
 
-function deNormalizeIds(pairs, newToOldMap) {
+function deNormIds(pairs, newToOldMap) {
 
     // Rebuild the pairs using the first map we created from new to old indexes
-    
+
     let rebuiltPairs = [];
     for (let pair of pairs) {
       let mappedStudent1 = newToOldMap[pair[0]];
@@ -162,11 +162,11 @@ function deNormalizeIds(pairs, newToOldMap) {
 
 module.exports = {
   randomizePairs,
-  createNormalizedIdMaps,
-  createAdjMatrix,
+  createNormIdMaps,
+  createNormAdjMatrix,
   getRecentGroupId,
   createAdjList,
   shuffleAdjList,
   createPairs,
-  deNormalizeIds
+  deNormIds
 }
