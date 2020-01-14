@@ -11,7 +11,7 @@ Pairing Algorithm Runtimes - O(n^3)
 6. Convert student IDs back to old format
 */
 
-async function randomizePairs(studentsList, edgeList, minRepeatDistance) {
+function randomizePairs(studentsList, edgeList, minRepeatDistance) {
   let { newToOldMap, oldToNewMap } = createNormIdMaps(studentsList);
   let adjMatrix = createNormAdjMatrix(studentsList.length, edgeList, oldToNewMap);
   let recentGroup = getRecentGroupId(edgeList);
