@@ -24,7 +24,7 @@ function randomizePairs(studentsList, edgeList, minRepeatDistance) {
 
 function createNormIdMaps(studentsList) {
 
-  // Give students a temporary id from 0 to n. This enables the use of a dense
+  // Assign students a temporary id from 0 to n. This enables the use of a dense
   // adjacency matrix
 
   let newToOldMap = [];
@@ -47,9 +47,8 @@ function createNormAdjMatrix(studentCount, edgeList, oldToNewMap) {
     adjMatrix[i] = new Array(studentCount);
   }
 
-  // Fetch minRepeatDistance past pairs from the cohort
-  // and populate the adjacency matrix at indices according to students' 
-  // temporary ids
+  // Populate the adjacency matrix at indices according to students' 
+  // new temporary ids
 
   for (let edge of edgeList) {
     let s1 = oldToNewMap[edge.student1_id];
@@ -64,14 +63,16 @@ function createNormAdjMatrix(studentCount, edgeList, oldToNewMap) {
 }
 
 async function getRecentGroupId(edgeList) {
+
+  // Get the most recent group number from the list of edges
+
   let recentGroup = edgeList[0] ? edgeList[0].group_id : null;
   return recentGroup;
 }
 
 function createAdjList(adjMatrix, recentGroup, minRepeatDistance) {
 
-  // Compute an adjacency list of the possible pairs given the minPairDistance.
-  // Clear this whenever new pairs are created.
+  // Compute an adjacency list of the pairs who haven't paired less than n-pairs ago
 
   let adjList = new Array(adjMatrix.length);
   for (let i = 0; i < adjMatrix.length; i++) {
@@ -102,8 +103,8 @@ function shuffleAdjList(adjList) {
 
 function createPairs(adjList, studentCount, start = 0, used = new Set(), pairs = []) {
 
-  // Recursively find and return the first valid pair
-  // INPUTS: list of students, pairs, set of used students
+  // Recursively find and return the first complete group of pairs
+  // Otherwise return false if it's not possible
 
   if (used.size === studentCount) {
     return pairs;
@@ -145,7 +146,7 @@ function createPairs(adjList, studentCount, start = 0, used = new Set(), pairs =
 
 function deNormIds(pairs, newToOldMap) {
 
-    // Rebuild the pairs using the first map we created from new to old indexes
+    // Rebuild the pairs IDs using the first map we created from new to old indexes
 
     let rebuiltPairs = [];
     for (let pair of pairs) {
