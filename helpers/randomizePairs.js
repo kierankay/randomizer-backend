@@ -1,6 +1,9 @@
 const Pair = require('../models/Pair');
 
 /*
+This algorithm creates a new group of pairs of students 
+satisfying the condition that no pair has grouped less than n-groups of pairs ago.
+
 Pairing Algorithm Runtimes - O(n^3)
 --------
 1. Remap student IDs starting from 0 for efficient use in adjacency matrix
