@@ -15,13 +15,32 @@ Pairing Algorithm Runtimes - O(n^3)
 */
 
 function randomizePairs(studentsList, edgeList, minRepeatDistance) {
+
+  // Assign students a temporary id from 0 to n. 
+  // This enables the use of a dense adjacency matrix
   let { newToOldMap, oldToNewMap } = createNormIdMaps(studentsList);
+
+  // create a new n * n adjacency matrix at indices according to students' 
+  // new temporary ids
   let adjMatrix = createNormAdjMatrix(studentsList.length, edgeList, oldToNewMap);
+
+  // Get the most recent group number from the list of edges
   let recentGroup = getRecentGroupId(edgeList);
+
+  // Compute an adjacency list of the pairs who haven't paired less than n-pairs ago
   let adjList = createAdjList(adjMatrix, recentGroup, minRepeatDistance);
+
+  // Shuffle the adjacency list to introduce randomness.
   let shuffledAdjList = shuffleAdjList(adjList);
+
+  // Find and return the first complete group of pairs
+  // Otherwise return false if it's not possible
   let pairs = createPairs(shuffledAdjList, studentsList.length);
+
+  // Rebuild the pairs IDs using the first map we created from new to old indexes
+  // use underscored names to match database column names
   let rebuiltPairs = deNormIds(pairs, newToOldMap);
+  
   return rebuiltPairs;
 }
 
@@ -113,33 +132,37 @@ function createPairs(adjList, studentCount, start = 0, used = new Set(), pairs =
     return pairs;
   }
 
-  for (let i = start; i < adjList.length; i++) {
-    if (!used.has(i)) {
-      for (let j = 0; j < adjList[i].length; j++) {
-        if (!used.has(adjList[i][j])) {
-          if (i === adjList[i][j]) {
-            if ((studentCount - used.size) % 2 === 1 || studentCount === 1) {
-              pairs.push([i]);
-              used.add(i);
-              if (createPairs(adjList, studentCount, i + 1, used, pairs)) {
-                return pairs;
-              } else {
-                pairs.pop();
-                used.delete(i);
-              }
-            }
+  for (let [student1, student1Edges] of adjList.entries()) {
+    if (used.has(student1)) {
+      continue;
+    }
+
+    for (let student2 of student1Edges) {
+      if (used.has(student2)) {
+        continue;
+      }
+
+      if (student1 === student2) {
+        if ((studentCount - used.size) % 2 === 1 || studentCount === 1) {
+          pairs.push([student1]);
+          used.add(student1);
+          if (createPairs(adjList, studentCount, student1 + 1, used, pairs)) {
+            return pairs;
           } else {
-            pairs.push([i, adjList[i][j]]);
-            used.add(i)
-            used.add(adjList[i][j]);
-            if (createPairs(adjList, studentCount, i + 1, used, pairs)) {
-              return pairs;
-            } else {
-              pairs.pop();
-              used.delete(i)
-              used.delete(adjList[i][j]);
-            }
+            pairs.pop();
+            used.delete(student1);
           }
+        }
+      } else {
+        pairs.push([student1, student2]);
+        used.add(student1)
+        used.add(student2);
+        if (createPairs(adjList, studentCount, student1 + 1, used, pairs)) {
+          return pairs;
+        } else {
+          pairs.pop();
+          used.delete(student1)
+          used.delete(student2);
         }
       }
     }
@@ -149,19 +172,20 @@ function createPairs(adjList, studentCount, start = 0, used = new Set(), pairs =
 
 function deNormIds(pairs, newToOldMap) {
 
-    // Rebuild the pairs IDs using the first map we created from new to old indexes
+  // Rebuild the pairs IDs using the first map we created from new to old indexes
+  // use underscored names to match database column names
 
-    let rebuiltPairs = [];
-    for (let pair of pairs) {
-      let mappedStudent1 = newToOldMap[pair[0]];
-      let mappedStudent2 = newToOldMap[pair[1]];
-      let newPair = {
-        student_1: mappedStudent1,
-        student_2: mappedStudent2
-      };
-      rebuiltPairs.push(newPair);
-    }
-    return rebuiltPairs;
+  let rebuiltPairs = [];
+  for (let pair of pairs) {
+    let mappedStudent1 = newToOldMap[pair[0]];
+    let mappedStudent2 = newToOldMap[pair[1]];
+    let newPair = {
+      student_1: mappedStudent1,
+      student_2: mappedStudent2
+    };
+    rebuiltPairs.push(newPair);
+  }
+  return rebuiltPairs;
 }
 
 module.exports = {
