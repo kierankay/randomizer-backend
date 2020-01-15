@@ -35,7 +35,7 @@ function randomizePairs(studentsList, edgeList, minRepeatDistance) {
 
   // Find and return the first complete group of pairs
   // Otherwise return false if it's not possible
-  let pairs = createPairs(shuffledAdjList, studentsList.length);
+  let pairs = createPairs(shuffledAdjList);
 
   // Rebuild the pairs IDs using the first map we created from new to old indexes
   // use underscored names to match database column names
@@ -45,7 +45,6 @@ function randomizePairs(studentsList, edgeList, minRepeatDistance) {
 }
 
 function createNormIdMaps(studentsList) {
-
   // Assign students a temporary id from 0 to n. This enables the use of a dense
   // adjacency matrix
 
@@ -61,9 +60,9 @@ function createNormIdMaps(studentsList) {
 }
 
 function createNormAdjMatrix(studentCount, edgeList, oldToNewMap) {
+  // Create an adjacency matrix using zero-indexed students
 
   // create a new n * n empty adjacency matrix
-
   let adjMatrix = new Array(studentCount);
   for (let i = 0; i < studentCount; i++) {
     adjMatrix[i] = new Array(studentCount);
@@ -85,7 +84,6 @@ function createNormAdjMatrix(studentCount, edgeList, oldToNewMap) {
 }
 
 async function getRecentGroupId(edgeList) {
-
   // Get the most recent group number from the list of edges
 
   let recentGroup = edgeList[0] ? edgeList[0].group_id : null;
@@ -93,7 +91,6 @@ async function getRecentGroupId(edgeList) {
 }
 
 function createAdjList(adjMatrix, recentGroup, minRepeatDistance) {
-
   // Compute an adjacency list of the pairs who haven't paired less than n-pairs ago
 
   let adjList = new Array(adjMatrix.length);
@@ -109,7 +106,6 @@ function createAdjList(adjMatrix, recentGroup, minRepeatDistance) {
 }
 
 function shuffleAdjList(adjList) {
-
   // Shuffle the adjacency list to introduce randomness.
 
   for (let i = 0; i < adjList.length; i++) {
@@ -123,10 +119,11 @@ function shuffleAdjList(adjList) {
   return adjList;
 }
 
-function createPairs(adjList, studentCount, start = 0, used = new Set(), pairs = []) {
-
+function createPairs(adjList, start = 0, used = new Set(), pairs = []) {
   // Recursively find and return the first complete group of pairs
   // Otherwise return false if it's not possible
+
+  let studentCount = adjList.length;
 
   if (used.size === studentCount) {
     return pairs;
@@ -151,10 +148,13 @@ function createPairs(adjList, studentCount, start = 0, used = new Set(), pairs =
           pairs.push([student1, null]);
           used.add(student1);
 
-          // 
-          if (createPairs(adjList, studentCount, student1 + 1, used, pairs)) {
+          // start searching for pairs from the next student's possible pairs
+          if (createPairs(adjList, student1 + 1, used, pairs)) {
             return pairs;
           } else {
+
+            // If we reach the end of of the adjList and the pairs don't include all the students
+            // then empty pairs and used and start from the next student match
             pairs.pop();
             used.delete(student1);
           }
@@ -162,15 +162,21 @@ function createPairs(adjList, studentCount, start = 0, used = new Set(), pairs =
 
       // If two different students are paired on the adjacency list
       } else {
+
         // Then add them to the array of pairs, and set of used students
         pairs.push([student1, student2]);
         used.add(student1)
         used.add(student2);
-        if (createPairs(adjList, studentCount, student1 + 1, used, pairs)) {
+
+        // start searching for pairs from the next student's possible pairs
+        if (createPairs(adjList, student1 + 1, used, pairs)) {
           return pairs;
         } else {
+
+          // If we reach the end of of the adjList and the pairs don't include all the students
+          // then empty pairs and used and start from the next student match
           pairs.pop();
-          used.delete(student1)
+          used.delete(student1);
           used.delete(student2);
         }
       }
