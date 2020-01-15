@@ -45,8 +45,8 @@ function randomizePairs(studentsList, edgeList, minRepeatDistance) {
 }
 
 function createNormIdMaps(studentsList) {
-  // Assign students a temporary id from 0 to n. This enables the use of a dense
-  // adjacency matrix
+  // Assign students a temporary id from 0 to n, and save the mapping. 
+  // This enables the use of a more efficient dense adjacency matrix
 
   let newToOldMap = [];
   let oldToNewMap = [];
@@ -84,14 +84,15 @@ function createNormAdjMatrix(studentCount, edgeList, oldToNewMap) {
 }
 
 async function getRecentGroupId(edgeList) {
-  // Get the most recent group number from the list of edges
+  // Get the most recent group number from the list of edges 
+  // used to ensure only pairings a min distance apart are included in our final list
 
   let recentGroup = edgeList[0] ? edgeList[0].group_id : null;
   return recentGroup;
 }
 
 function createAdjList(adjMatrix, recentGroup, minRepeatDistance) {
-  // Compute an adjacency list of the pairs who haven't paired less than n-pairs ago
+  // Compute an adjacency list of the pairs that are more than a min distance apart
 
   let adjList = new Array(adjMatrix.length);
   for (let i = 0; i < adjMatrix.length; i++) {
@@ -186,8 +187,7 @@ function createPairs(adjList, start = 0, used = new Set(), pairs = []) {
 }
 
 function deNormIds(pairs, newToOldMap) {
-
-  // Rebuild the pairs IDs using the first map we created from new to old indexes
+  // Rebuild pairs's old IDs using a mapping from 0-indexed ids back to old ids
   // use underscored names to match database column names
 
   let rebuiltPairs = [];
