@@ -132,20 +132,26 @@ function createPairs(adjList, studentCount, start = 0, used = new Set(), pairs =
     return pairs;
   }
 
-  for (let [student1, student1Edges] of adjList.entries()) {
+  for (let student1 = start; student1 < studentCount; student1++) {
     if (used.has(student1)) {
       continue;
     }
 
-    for (let student2 of student1Edges) {
+    for (let student2 of adjList[student1]) {
       if (used.has(student2)) {
         continue;
       }
 
+      // If a self-match is found on the adjacency list
       if (student1 === student2) {
+
+        // Then only if there are an odd number of students, or just 1 student left
+        // add the solo student to the array of pairs and set of used students
         if ((studentCount - used.size) % 2 === 1 || studentCount === 1) {
-          pairs.push([student1]);
+          pairs.push([student1, null]);
           used.add(student1);
+
+          // 
           if (createPairs(adjList, studentCount, student1 + 1, used, pairs)) {
             return pairs;
           } else {
@@ -153,7 +159,10 @@ function createPairs(adjList, studentCount, start = 0, used = new Set(), pairs =
             used.delete(student1);
           }
         }
+
+      // If two different students are paired on the adjacency list
       } else {
+        // Then add them to the array of pairs, and set of used students
         pairs.push([student1, student2]);
         used.add(student1)
         used.add(student2);
