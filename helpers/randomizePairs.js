@@ -135,6 +135,12 @@ function createPairs(adjList, start = 0, used = new Set(), pairs = []) {
       continue;
     }
 
+    // If we've not found a suitable group after trying all pairs from student1's possible pairs
+    // then return false, because no complete groupings are possible.
+    if (used.size === 0 && student1 === 1) {
+      return false;
+    } 
+
     for (let student2 of adjList[student1]) {
       if (used.has(student2)) {
         continue;
