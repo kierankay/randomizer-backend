@@ -15,6 +15,8 @@ Pairing Algorithm Runtimes - O(n^3)
 */
 
 function randomizePairs(studentsList, edgeList, minRepeatDistance) {
+  // check inputs are required types
+  checkTypes(studentsList, edgeList, minRepeatDistance);
 
   // Assign students a temporary id from 0 to n. 
   // This enables the use of a dense adjacency matrix
@@ -44,9 +46,23 @@ function randomizePairs(studentsList, edgeList, minRepeatDistance) {
   return rebuiltPairs;
 }
 
+function checkTypes(studentsList, edgeList, minRepeatDistance) {
+  if (!Array.isArray(studentsList)) {
+    throw new Error('studentsList must be an array');
+  }
+
+  if (!Array.isArray(edgeList)) {
+    throw new Error('edgeList must be an array');
+  }
+
+  if (isNaN(minRepeatDistance)) {
+    throw new Error('minRepeatDistance must be an integer');
+  }
+}
+
 function createNormIdMaps(studentsList) {
   // Assign students a temporary id from 0 to n, and save the mapping. 
-  // This enables the use of a more efficient dense adjacency matrix
+  // This enables the use of a more efficient dense adjacency 
 
   let newToOldMap = [];
   let oldToNewMap = [];
