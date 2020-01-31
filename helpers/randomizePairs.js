@@ -1,4 +1,4 @@
-const Pair = require('../models/Pair');
+const typeValidation = require('./typeValidators');
 
 /*
 This algorithm creates a new group of pairs of students 
@@ -42,22 +42,14 @@ function randomizePairs(studentsList, edgeList, minRepeatDistance) {
   // Rebuild the pairs IDs using the first map we created from new to old indexes
   // use underscored names to match database column names
   let rebuiltPairs = deNormIds(pairs, newToOldMap);
-  
+
   return rebuiltPairs;
 }
 
 function checkTypes(studentsList, edgeList, minRepeatDistance) {
-  if (!Array.isArray(studentsList)) {
-    throw new Error('studentsList must be an array');
-  }
-
-  if (!Array.isArray(edgeList)) {
-    throw new Error('edgeList must be an array');
-  }
-
-  if (isNaN(minRepeatDistance)) {
-    throw new Error('minRepeatDistance must be an integer');
-  }
+  typeValidation.isArray(studentsList, 'studentsList');
+  typeValidation.isArray(edgeList, 'edgeList');
+  typeValidation.isNum(minRepeatDistance, 'minRepeatDistance');
 }
 
 function createNormIdMaps(studentsList) {
@@ -155,7 +147,7 @@ function createPairs(adjList, start = 0, used = new Set(), pairs = []) {
     // then return false, because no complete groupings are possible.
     if (used.size === 0 && student1 === 1) {
       return false;
-    } 
+    }
 
     for (let student2 of adjList[student1]) {
       if (used.has(student2)) {
@@ -183,7 +175,7 @@ function createPairs(adjList, start = 0, used = new Set(), pairs = []) {
           }
         }
 
-      // If two different students are paired on the adjacency list
+        // If two different students are paired on the adjacency list
       } else {
 
         // Then add them to the array of pairs, and set of used students
