@@ -74,10 +74,10 @@ router.get('/:id/groups', async (req, res, next) => {
 router.get('/:id/groups/random', async (req, res, next) => {
   try {
     const cohortId = req.params.id;
-    const { min_paired_ago } = req.query;
+    const { min_paired_ago: minPairedAgo } = req.query;
     const list = await Student.getStudentsFromCohort(cohortId);
-    const edgeList = await Pair.getPairsEdgeList(min_paired_ago, cohortId);
-    const pairs = await randomizePairs(list, edgeList, min_paired_ago);
+    const edgeList = await Pair.getPairsEdgeList(minPairedAgo, cohortId);
+    const pairs = await randomizePairs(list, edgeList, minPairedAgo);
     return res.json(pairs);
   } catch (err) {
     return next(err);

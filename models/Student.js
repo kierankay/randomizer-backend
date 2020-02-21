@@ -12,14 +12,14 @@ class Student {
   */
 
   static async addStudent(student) {
-    const { first_name, last_name, cohort } = student;
+    const { first_name: firstName, last_name: lastName, cohort } = student;
     try {
       const result = await db.query(`
     INSERT INTO students
     (first_name, last_name, cohort_id)
     VALUES ($1, $2, $3)
     RETURNING first_name, last_name, cohort_id
-    `, [first_name, last_name, cohort]);
+    `, [firstName, lastName, cohort]);
       return result.rows[0];
     } catch (err) {
       throw new Error(err.detail);

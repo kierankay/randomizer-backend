@@ -126,14 +126,14 @@ class User {
       WHERE hashed_token=$1
       RETURNING id, user_id, hashed_token, valid
     `, [token]);
-      const { user_id } = expiredToken.rows[0];
+      const { user_id: userId } = expiredToken.rows[0];
       const hashedPassword = await bcrypt.hash(password, NUM_ROUNDS);
       const userData = await db.query(`
     UPDATE users 
       SET password = $1
       WHERE id=$2
       RETURNING id, first_name, last_name, organization_id, email, password
-    `, [hashedPassword, user_id]);
+    `, [hashedPassword, userId]);
       return { expiredToken, userData };
     } catch (err) {
       throw new Error(err.detail);
@@ -147,7 +147,7 @@ class User {
         to: email,
         subject: 'Password Reset Request',
         html: `Click <a href="${FRONTENDSERVER}/reset-password/${token}">here</a> to reset your password. \
-      If you do not recognize this request, please ignore it.`
+      If you do not recognize this request, please ignore it.`,
       });
       return info;
     } catch (err) {

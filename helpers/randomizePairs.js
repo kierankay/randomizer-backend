@@ -1,7 +1,7 @@
 const typeValidation = require('./typeValidators');
 
 /*
-This algorithm creates a new group of pairs of students 
+This algorithm creates a new group of pairs of students
 satisfying the condition that no pair has grouped less than n-groups of pairs ago.
 
 Pairing Algorithm Runtimes - O(n^3)
@@ -61,7 +61,7 @@ function createNormAdjMatrix(studentCount, edgeList, oldToNewMap) {
 }
 
 async function getRecentGroupId(edgeList) {
-  // Get the most recent group number from the list of edges 
+  // Get the most recent group number from the list of edges
   // used to ensure only pairings a min distance apart are included in our final list
 
   const recentGroup = edgeList[0] ? edgeList[0].group_id : null;
