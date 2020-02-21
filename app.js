@@ -1,8 +1,8 @@
+const dotenv = require('dotenv');
 const express = require('express');
-const ExpressError = require('./expressError');
 const passport = require('passport');
 const cors = require('cors');
-const dotenv = require('dotenv');
+const ExpressError = require('./expressError');
 
 dotenv.config();
 
@@ -13,6 +13,7 @@ app.use(express.static('./'));
 
 app.use(require('body-parser').urlencoded({ extended: true }));
 app.use(require('express-session')({ secret: 'keyboard cat', resave: false, saveUninitialized: false }));
+
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -24,20 +25,20 @@ app.use('/api/cohorts', cohortRoutes);
 
 // Error handling
 
-app.use(function (req, res, next) {
+app.use((req, res, next) => {
   const err = new ExpressError('resource not found', 404);
   return next(err);
-})
+});
 
-app.use(function (err, req, res, next) {
+app.use((err, req, res) => {
   res.status(err.status || 500);
-  if (process.env.NODE_ENV != "test") {
+  if (process.env.NODE_ENV !== 'test') {
     console.error(err.stack);
   }
 
   return res.json({
     error: err,
-    message: err.message
+    message: err.message,
   });
 });
 
