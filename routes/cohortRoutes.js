@@ -8,7 +8,7 @@ const Pair = require('../models/Pair');
 const { randomizePairs } = require('../helpers/randomizePairs');
 
 const router = express.Router();
-router.use(User.verifyJwt)
+router.use(User.verifyJwt);
 
 // COHORT ROUTES
 
@@ -17,10 +17,10 @@ router.use(User.verifyJwt)
   ex: GET /api/cohorts/
 */
 
-router.get('/', async function (req, res, next) {
+router.get('/', async (req, res, next) => {
   try {
-    let orgId = req.user.organization;
-    let result = await Cohort.getCohorts(orgId);
+    const orgId = req.user.organization;
+    const result = await Cohort.getCohorts(orgId);
     return res.json(result);
   } catch (err) {
     return next(err);
@@ -36,11 +36,11 @@ router.get('/', async function (req, res, next) {
 */
 
 
-router.post('/', async function (req, res, next) {
+router.post('/', async (req, res, next) => {
   try {
-    let { cohort } = req.body;
-    let orgId = req.user.organization;
-    let added = await Cohort.addCohort(cohort, orgId);
+    const { cohort } = req.body;
+    const orgId = req.user.organization;
+    const added = await Cohort.addCohort(cohort, orgId);
     return res.json(added);
   } catch (err) {
     return next(err);
@@ -54,11 +54,11 @@ router.post('/', async function (req, res, next) {
   ex: GET /api/cohorts/1/groups
 */
 
-router.get('/:id/groups', async function (req, res, next) {
+router.get('/:id/groups', async (req, res, next) => {
   try {
-    let cohortId = req.params.id;
-    let { limit } = req.query;
-    let result = await Pair.getLastPairs(limit, cohortId);
+    const cohortId = req.params.id;
+    const { limit } = req.query;
+    const result = await Pair.getLastPairs(limit, cohortId);
     return res.json(result);
   } catch (err) {
     return next(err);
@@ -71,13 +71,13 @@ router.get('/:id/groups', async function (req, res, next) {
   ex: GET /api/cohorts/1/groups/random
 */
 
-router.get('/:id/groups/random', async function (req, res, next) {
+router.get('/:id/groups/random', async (req, res, next) => {
   try {
-    let cohortId = req.params.id;
-    let { min_paired_ago } = req.query;
-    let list = await Student.getStudentsFromCohort(cohortId);
-    let edgeList = await Pair.getPairsEdgeList(min_paired_ago, cohortId);
-    let pairs = await randomizePairs(list, edgeList, min_paired_ago);
+    const cohortId = req.params.id;
+    const { min_paired_ago } = req.query;
+    const list = await Student.getStudentsFromCohort(cohortId);
+    const edgeList = await Pair.getPairsEdgeList(min_paired_ago, cohortId);
+    const pairs = await randomizePairs(list, edgeList, min_paired_ago);
     return res.json(pairs);
   } catch (err) {
     return next(err);
@@ -93,11 +93,11 @@ router.get('/:id/groups/random', async function (req, res, next) {
   }
 */
 
-router.post('/:id/groups', async function (req, res, next) {
+router.post('/:id/groups', async (req, res, next) => {
   try {
-    let cohortId = req.params.id;
-    let { group, project } = req.body;
-    let acceptedPairs = await Pair.acceptPairs(group, project, cohortId);
+    const cohortId = req.params.id;
+    const { group, project } = req.body;
+    const acceptedPairs = await Pair.acceptPairs(group, project, cohortId);
     return res.json(acceptedPairs);
   } catch (err) {
     return next(err);
@@ -106,15 +106,15 @@ router.post('/:id/groups', async function (req, res, next) {
 
 // COHORT > STUDENT ROUTES
 
-/* 
+/*
   Fetch all students from a specific cohort
   ex: GET /api/cohorts/1/students
 */
 
-router.get('/:id/students', async function (req, res, next) {
+router.get('/:id/students', async (req, res, next) => {
   try {
-    let cohortId = req.params.id;
-    let students = await Student.getStudentsFromCohort(cohortId);
+    const cohortId = req.params.id;
+    const students = await Student.getStudentsFromCohort(cohortId);
     return res.json(students);
   } catch (err) {
     return next(err);
@@ -130,12 +130,12 @@ router.get('/:id/students', async function (req, res, next) {
   }
 */
 
-router.post('/:id/students', async function (req, res, next) {
+router.post('/:id/students', async (req, res, next) => {
   try {
-    let cohortId = req.params.id;
-    let student = req.body;
+    const cohortId = req.params.id;
+    const student = req.body;
     student.cohort = cohortId;
-    let result = await Student.addStudent(student);
+    const result = await Student.addStudent(student);
     return res.json(result);
   } catch (err) {
     return next(err);
@@ -153,14 +153,14 @@ router.post('/:id/students', async function (req, res, next) {
         "group_id": 5
       }
     ]
-  } 
+  }
 */
 
-router.get('/:id/pairs', async function (req, res, next) {
+router.get('/:id/pairs', async (req, res, next) => {
   try {
-    let cohortId = req.params.id;
-    let { limit } = req.query;
-    let result = await Pair.getPairsList(limit, cohortId);
+    const cohortId = req.params.id;
+    const { limit } = req.query;
+    const result = await Pair.getPairsList(limit, cohortId);
     return res.json(result);
   } catch (err) {
     return next(err);

@@ -1,33 +1,36 @@
 const db = require('../db');
 
 class Pair {
-
   static async acceptPairs(group, project, cohort) {
-    let groupResult = await db.query(`
+    try {
+      const groupResult = await db.query(`
       INSERT INTO groups
       (project, cohort_id)
       VALUES ($1, $2)
       RETURNING id, project, date, cohort_id
-      `, [project, cohort]
-    )
-    for (let pair of group) {
-      if (Object.keys(pair).length === 2) {
-        await db.query(`
+      `, [project, cohort]);
+
+      group.forEach(async (pair) => {
+        if (Object.keys(pair).length === 2) {
+          await db.query(`
           INSERT INTO pairs
           (student1_id, student2_id, group_id)
           VALUES ($1, $2, $3)
           RETURNING student1_id, student2_id, group_id
-        `, [pair.student_1.id, pair.student_2.id, groupResult.rows[0].id])
-      } else {
-        await db.query(`
+        `, [pair.student_1.id, pair.student_2.id, groupResult.rows[0].id]);
+        } else {
+          await db.query(`
           INSERT INTO pairs
           (student1_id, group_id)
           VALUES ($1, $2)
           RETURNING student1_id, group_id
-        `, [pair.student_1.id, groupResult.rows[0].id])
-      }
+        `, [pair.student_1.id, groupResult.rows[0].id]);
+        }
+      });
+      return groupResult.rows;
+    } catch (err) {
+      throw new Error(err.detail);
     }
-    return groupResult.rows;
   }
 
 
@@ -56,7 +59,8 @@ class Pair {
   */
 
   static async getLastPairs(limit, cohort) {
-    let result = await db.query(`
+    try {
+      const result = await db.query(`
       SELECT row_to_json(g) as group
       FROM (
         SELECT id, project, date, cohort_id, json_agg(json_build_object('student_1', p.student_1, 'student_2', p.student_2)) as pairs
@@ -74,17 +78,21 @@ class Pair {
         LIMIT $1
       ) as g
       WHERE cohort_id = $2
-      `, [limit, cohort])
-    return result.rows;
+      `, [limit, cohort]);
+      return result.rows;
+    } catch (err) {
+      throw new Error(err.detail);
+    }
   }
 
-  /* 
+  /*
   Return pairs as weighted edge list.
   Ex: [[1, 2, 1],[3, 4, 1], ...]
   */
 
   static async getPairsEdgeList(limit, cohort) {
-    let result = await db.query(`
+    try {
+      const result = await db.query(`
       SELECT pairs.student1_id, pairs.student2_id, pairs.group_id
       FROM pairs
       LEFT JOIN groups ON pairs.group_id = groups.id
@@ -92,7 +100,10 @@ class Pair {
       AND pairs.group_id > (SELECT group_id FROM pairs ORDER BY group_id DESC LIMIT 1) - $1
       ORDER BY pairs.group_id DESC
       `, [limit, cohort]);
-    return result.rows;
+      return result.rows;
+    } catch (err) {
+      throw new Error(err.detail);
+    }
   }
 }
 

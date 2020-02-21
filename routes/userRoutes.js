@@ -1,5 +1,6 @@
 const express = require('express');
 const User = require('../models/User');
+
 const router = express.Router();
 
 /*
@@ -14,11 +15,12 @@ const router = express.Router();
   }
 */
 
-router.post('/', async function (req, res, next) {
+router.post('/', async (req, res, next) => {
   try {
-    let { firstName, lastName, organization, email, password } = req.body;
-    let result = await User.createUser( firstName, lastName, organization, email, password );
-    console.log(result);
+    const {
+      firstName, lastName, organization, email, password,
+    } = req.body;
+    const result = await User.createUser(firstName, lastName, organization, email, password);
     return res.json(result);
   } catch (err) {
     return next(err);
@@ -30,7 +32,7 @@ router.post('/', async function (req, res, next) {
   ex: GET /api/users/check
 */
 
-router.get('/check', User.verifyJwt, async function (req, res, next) {
+router.get('/check', User.verifyJwt, async (req, res, next) => {
   try {
     return res.json({ user: req.user });
   } catch (err) {
@@ -50,19 +52,18 @@ router.get('/check', User.verifyJwt, async function (req, res, next) {
 
 // refactor to use passport.authenticate('local') middleware in the future
 
-router.post('/login', async function (req, res, next) {
+router.post('/login', async (req, res, next) => {
   try {
-    let { email, password } = req.body;
-    let result = await User.loginUser(email, password);
+    const { email, password } = req.body;
+    const result = await User.loginUser(email, password);
 
     // If there's an error message, return the message with its default "message" key
     if (result.message) {
       return res.json(result);
 
       // Otherwise return the token in a key of "token"
-    } else {
-      return res.json({ token: result });
     }
+    return res.json({ token: result });
   } catch (err) {
     return next(err);
   }
@@ -76,10 +77,10 @@ router.post('/login', async function (req, res, next) {
   }
 */
 
-router.post('/request-password-reset', async function (req, res, next) {
+router.post('/request-password-reset', async (req, res, next) => {
   try {
-    let { email } = req.body
-    let userData = await User.checkUserByEmail(email);
+    const { email } = req.body;
+    const userData = await User.checkUserByEmail(email);
     if (userData) {
       const token = await User.createPasswordResetToken(userData);
       User.sendPasswordResetEmail(token, email);
@@ -98,11 +99,11 @@ router.post('/request-password-reset', async function (req, res, next) {
   }
 */
 
-router.post('/check-password-token', async function (req, res, next) {
+router.post('/check-password-token', async (req, res, next) => {
   try {
-    let { passwordToken } = req.body
-    let tokenValid = await User.verifyPasswordResetToken(passwordToken);
-    return res.json({tokenValid})
+    const { passwordToken } = req.body;
+    const tokenValid = await User.verifyPasswordResetToken(passwordToken);
+    return res.json({ tokenValid });
   } catch (err) {
     return next(err);
   }
@@ -117,16 +118,15 @@ router.post('/check-password-token', async function (req, res, next) {
   }
 */
 
-router.post('/confirm-password-reset', async function (req, res, next) {
+router.post('/confirm-password-reset', async (req, res, next) => {
   try {
-    let { passwordToken, password } = req.body;
-    let tokenValid = await User.verifyPasswordResetToken(passwordToken);
+    const { passwordToken, password } = req.body;
+    const tokenValid = await User.verifyPasswordResetToken(passwordToken);
     if (!tokenValid) {
-      return res.json({message: "Token is expired"});
-    } else {
-      let updatedData = await User.changePasswordWithToken(passwordToken, password);
-      return res.json({message: "Password updated"});
+      return res.json({ message: 'Token is expired' });
     }
+    const updatedData = await User.changePasswordWithToken(passwordToken, password);
+    return res.json({ message: `Password status ${updatedData}` });
   } catch (err) {
     return next(err);
   }
@@ -134,10 +134,10 @@ router.post('/confirm-password-reset', async function (req, res, next) {
 
 module.exports = router;
 
-/* 
+/*
 
 // Refactor to passport.js based auth in the future.
 
-const passport = require('passport'); 
+const passport = require('passport');
 
 */
